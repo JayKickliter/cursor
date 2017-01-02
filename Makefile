@@ -22,3 +22,8 @@ $(TESTER): $(TEST_OBJ) $(LIB)
 
 test: $(TESTER)
 	$(TESTER)
+
+clean:
+	rm -f $(LIB_OBJ)
+	rm -f $(TEST_OBJ)
+	rm -f $(LIB)
