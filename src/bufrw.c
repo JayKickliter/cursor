@@ -3,19 +3,19 @@
 #include <assert.h>
 
 /* Check that buffer has enough bytes left to read the desired type out */
-#define SIZE_CHECK()                                                           \
+#define SIZE_CHECK(_CTX, _T)                                                   \
     do                                                                         \
     {                                                                          \
-        if ((ctx->pos + sizeof(*dst)) <= ctx->len)                             \
+        if ((_CTX->pos + sizeof(_T)) > _CTX->len)                              \
         {                                                                      \
             return bufrw_buf_err_exhausted;                                    \
         }                                                                      \
     } while (0)
 
-#define INC_READ_POS()                                                         \
+#define INC_POS(_CTX, _T)                                                      \
     do                                                                         \
     {                                                                          \
-        ctx->pos += sizeof(*dst);                                              \
+        _CTX->pos += sizeof(_T);                                               \
     } while (0)
 
 struct bufrw
