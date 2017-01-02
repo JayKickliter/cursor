@@ -2,10 +2,37 @@
 #include "endian.h"
 #include "greatest.h"
 #include <assert.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
 
 GREATEST_MAIN_DEFS();
+
+static inline float
+random_float()
+{
+    return (float)random() / (float)(RAND_MAX);
+}
+
+static uint64_t
+random_unique()
+{
+    uint8_t initial = random();
+    uint8_t val[sizeof(uint64_t)];
+    for (size_t i = 0; i < sizeof(uint64_t); i++)
+    {
+        val[i] = initial++;
+    }
+    return *((uint64_t *)val);
+    return 0;
+}
+
+static size_t
+random_size(size_t max, size_t min)
+{
+    assert(max > min);
+    return (random() % (max + 1 - min)) + min;
+}
 
 enum instruction_type
 {
@@ -44,65 +71,69 @@ struct instruction
     size_t val_size;
 };
 
-void
-rand_instruction(struct instruction * inst)
+struct instruction
+instruction_random()
 {
+    struct instruction inst;
     /* generate a random tag */
-    int tag_idx = rand() % IT_VARIANT_CNT;
+    int tag_idx = random_unique() % IT_VARIANT_CNT;
     switch (tag_idx)
     {
     case it_u8:
-        inst->it       = it_u8;
-        inst->val.u8   = rand();
-        inst->val_size = sizeof(inst->val.u8);
+        inst.it       = it_u8;
+        inst.val.u8   = random_unique();
+        inst.val_size = sizeof(inst.val.u8);
+        break;
     case it_i8:
-        inst->it       = it_i8;
-        inst->val.i8   = rand();
-        inst->val_size = sizeof(inst->val.i8);
+        inst.it       = it_i8;
+        inst.val.i8   = random_unique();
+        inst.val_size = sizeof(inst.val.i8);
+        break;
     case it_u16:
-        inst->it       = it_u16;
-        inst->val.u16  = rand();
-        inst->val_size = sizeof(inst->val.u16);
+        inst.it       = it_u16;
+        inst.val.u16  = random_unique();
+        inst.val_size = sizeof(inst.val.u16);
+        break;
     case it_i16:
-        inst->it       = it_i16;
-        inst->val.i16  = rand();
-        inst->val_size = sizeof(inst->val.i16);
+        inst.it       = it_i16;
+        inst.val.i16  = random_unique();
+        inst.val_size = sizeof(inst.val.i16);
+        break;
     case it_u32:
-        inst->it       = it_u32;
-        inst->val.u32  = rand();
-        inst->val_size = sizeof(inst->val.u32);
+        inst.it       = it_u32;
+        inst.val.u32  = random_unique();
+        inst.val_size = sizeof(inst.val.u32);
+        break;
     case it_i32:
-        inst->it       = it_i32;
-        inst->val.i32  = rand();
-        inst->val_size = sizeof(inst->val.i32);
+        inst.it       = it_i32;
+        inst.val.i32  = random_unique();
+        inst.val_size = sizeof(inst.val.i32);
+        break;
     case it_u64:
-        inst->it       = it_u64;
-        inst->val.u64  = rand();
-        inst->val_size = sizeof(inst->val.u64);
+        inst.it       = it_u64;
+        inst.val.u64  = random_unique();
+        inst.val_size = sizeof(inst.val.u64);
+        break;
     case it_i64:
-        inst->it       = it_i64;
-        inst->val.i64  = rand();
-        inst->val_size = sizeof(inst->val.i64);
+        inst.it       = it_i64;
+        inst.val.i64  = random_unique();
+        inst.val_size = sizeof(inst.val.i64);
+        break;
     case it_f:
-        inst->it       = it_f;
-        inst->val.f    = rand();
-        inst->val_size = sizeof(inst->val.f);
+        inst.it       = it_f;
+        inst.val.f    = random_float();
+        inst.val_size = sizeof(inst.val.f);
+        break;
     case it_d:
-        inst->it       = it_d;
-        inst->val.d    = rand();
-        inst->val_size = sizeof(inst->val.d);
+        inst.it       = it_d;
+        inst.val.d    = random_float();
+        inst.val_size = sizeof(inst.val.d);
+        break;
+    default:
+        fprintf(stderr, "Invalid instruction variant tag\n");
+        assert(0);
     }
-}
-
-size_t
-instructions_required_buf_size(struct instruction * is, size_t nis)
-{
-    size_t req_buf_size = 0;
-    for (size_t i = 0; i < nis; i++)
-    {
-        req_buf_size += is[i].val_size;
-    }
-    return req_buf_size;
+    return inst;
 }
 
 struct plan
@@ -115,28 +146,158 @@ struct plan
 struct plan
 plan_random()
 {
-    size_t plan_size;
-    do
-    {
-        plan_size = rand() % 10000;
-    } while (plan_size < 1024);
+    size_t plan_size = random_size(80192, 1024);
+
     struct instruction * is = malloc(plan_size * sizeof(struct instruction));
     for (size_t i = 0; i < plan_size; i++)
     {
-        rand_instruction(&is[i]);
+        is[i] = instruction_random();
     }
-    size_t req_buf_size = instructions_required_buf_size(is, plan_size);
+
+    size_t req_buf_size = 0;
+    for (size_t i = 0; i < plan_size; i++)
+    {
+        req_buf_size += is[i].val_size;
+    }
+
     struct plan plan = {
         .is = is, .nis = plan_size, .req_buf_size = req_buf_size,
     };
     return plan;
 }
 
+enum bufrw_res
+bufrw_write_instr(struct bufrw * ctx, struct instruction const * instr)
+{
+    enum bufrw_res res;
+    switch (instr->it)
+    {
+    case it_u8:
+        res = bufrw_write_le(ctx, instr->val.u8);
+        break;
+    case it_i8:
+        res = bufrw_write_le(ctx, instr->val.i8);
+        break;
+    case it_u16:
+        res = bufrw_write_le(ctx, instr->val.u16);
+        break;
+    case it_i16:
+        res = bufrw_write_le(ctx, instr->val.i16);
+        break;
+    case it_u32:
+        res = bufrw_write_le(ctx, instr->val.u32);
+        break;
+    case it_i32:
+        res = bufrw_write_le(ctx, instr->val.i32);
+        break;
+    case it_u64:
+        res = bufrw_write_le(ctx, instr->val.u64);
+        break;
+    case it_i64:
+        res = bufrw_write_le(ctx, instr->val.i64);
+        break;
+    case it_f:
+        res = bufrw_write_le(ctx, instr->val.f);
+        break;
+    case it_d:
+        res = bufrw_write_le(ctx, instr->val.d);
+        break;
+    }
+    return res;
+}
+
+TEST
+bufrw_read_le_and_compare_to_instr(struct bufrw *             ctx,
+                                   struct instruction const * instr)
+{
+    char err_msg[64];
+    snprintf(err_msg,
+             sizeof(err_msg),
+             "Read value does not match at position %zd",
+             ctx->pos);
+    enum bufrw_res res;
+    switch (instr->it)
+    {
+    case it_u8:
+    {
+        uint8_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, PRIu8);
+    }
+    break;
+    case it_i8:
+    {
+        int8_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, PRId8);
+        break;
+    }
+    case it_u16:
+    {
+        uint16_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, PRId16);
+    }
+    break;
+    case it_i16:
+    {
+        int16_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, PRId16);
+    }
+    break;
+    case it_u32:
+    {
+        uint32_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, PRIu32);
+    }
+    break;
+    case it_i32:
+    {
+        int32_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMT(instr->val.i32, val, PRId32);
+    }
+    break;
+    case it_u64:
+    {
+        uint64_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, PRIu64);
+    }
+    break;
+    case it_i64:
+    {
+        int64_t val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, PRId64);
+    }
+    break;
+    case it_f:
+    {
+        float val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.f, val, "%f");
+    }
+    break;
+    case it_d:
+    {
+        double val;
+        res = bufrw_read_le(ctx, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.d, val, "%f");
+    }
+    break;
+    }
+    ASSERT_EQ(bufrw_res_ok, res);
+    PASS();
+}
+
 
 TEST
 generic_write_read_le_u8_should_match(void)
 {
-    uint8_t wrote = rand();
+    uint8_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint8_t read;
@@ -148,7 +309,7 @@ generic_write_read_le_u8_should_match(void)
 TEST
 generic_write_read_le_i8_should_match(void)
 {
-    int8_t  wrote = rand();
+    int8_t  wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int8_t read;
@@ -160,7 +321,7 @@ generic_write_read_le_i8_should_match(void)
 TEST
 generic_write_read_le_u16_should_match(void)
 {
-    uint16_t wrote = rand();
+    uint16_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint16_t read;
@@ -172,7 +333,7 @@ generic_write_read_le_u16_should_match(void)
 TEST
 generic_write_read_le_i16_should_match(void)
 {
-    int16_t wrote = rand();
+    int16_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int16_t read;
@@ -184,7 +345,7 @@ generic_write_read_le_i16_should_match(void)
 TEST
 generic_write_read_le_u32_should_match(void)
 {
-    uint32_t wrote = rand();
+    uint32_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint32_t read;
@@ -196,7 +357,7 @@ generic_write_read_le_u32_should_match(void)
 TEST
 generic_write_read_le_i32_should_match(void)
 {
-    int32_t wrote = rand();
+    int32_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int32_t read;
@@ -208,7 +369,7 @@ generic_write_read_le_i32_should_match(void)
 TEST
 generic_write_read_le_u64_should_match(void)
 {
-    uint64_t wrote = ((uint64_t)rand() << 32) & rand();
+    uint64_t wrote = ((uint64_t)random() << 32) & random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint64_t read;
@@ -220,7 +381,7 @@ generic_write_read_le_u64_should_match(void)
 TEST
 generic_write_read_le_i64_should_match(void)
 {
-    int64_t wrote = ((int64_t)rand() << 32) & rand();
+    int64_t wrote = ((int64_t)random() << 32) & random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int64_t read;
@@ -232,24 +393,24 @@ generic_write_read_le_i64_should_match(void)
 TEST
 generic_write_read_le_f_should_match(void)
 {
-    float   wrote = rand() * rand() / rand();
+    float   wrote = random_float();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     float read;
     read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    ASSERT_EQ_FMT(wrote, read, "%f");
     PASS();
 }
 
 TEST
 generic_write_read_le_d_should_match(void)
 {
-    double  wrote = rand() * rand() / rand();
+    double  wrote = random_float();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     double read;
     read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    ASSERT_EQ_FMT(wrote, read, "%f");
     PASS();
 }
 
@@ -270,7 +431,7 @@ SUITE(generic_write_read_le)
 TEST
 generic_write_read_be_u8_should_match(void)
 {
-    uint8_t wrote = rand();
+    uint8_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     uint8_t read;
@@ -282,7 +443,7 @@ generic_write_read_be_u8_should_match(void)
 TEST
 generic_write_read_be_i8_should_match(void)
 {
-    int8_t  wrote = rand();
+    int8_t  wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     int8_t read;
@@ -294,7 +455,7 @@ generic_write_read_be_i8_should_match(void)
 TEST
 generic_write_read_be_u16_should_match(void)
 {
-    uint16_t wrote = rand();
+    uint16_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_be(buf, wrote);
     uint16_t read;
@@ -306,7 +467,7 @@ generic_write_read_be_u16_should_match(void)
 TEST
 generic_write_read_be_i16_should_match(void)
 {
-    int16_t wrote = rand();
+    int16_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     int16_t read;
@@ -318,7 +479,7 @@ generic_write_read_be_i16_should_match(void)
 TEST
 generic_write_read_be_u32_should_match(void)
 {
-    uint32_t wrote = rand();
+    uint32_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_be(buf, wrote);
     uint32_t read;
@@ -330,7 +491,7 @@ generic_write_read_be_u32_should_match(void)
 TEST
 generic_write_read_be_i32_should_match(void)
 {
-    int32_t wrote = rand();
+    int32_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     int32_t read;
@@ -342,7 +503,7 @@ generic_write_read_be_i32_should_match(void)
 TEST
 generic_write_read_be_u64_should_match(void)
 {
-    uint64_t wrote = ((uint64_t)rand() << 32) & rand();
+    uint64_t wrote = ((uint64_t)random() << 32) & random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_be(buf, wrote);
     uint64_t read;
@@ -354,7 +515,7 @@ generic_write_read_be_u64_should_match(void)
 TEST
 generic_write_read_be_i64_should_match(void)
 {
-    int64_t wrote = ((int64_t)rand() << 32) & rand();
+    int64_t wrote = ((int64_t)random() << 32) & random_unique();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     int64_t read;
@@ -366,24 +527,24 @@ generic_write_read_be_i64_should_match(void)
 TEST
 generic_write_read_be_f_should_match(void)
 {
-    float   wrote = rand() * rand() / rand();
+    float   wrote = random_float();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     float read;
     read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    ASSERT_EQ_FMT(wrote, read, "%f");
     PASS();
 }
 
 TEST
 generic_write_read_be_d_should_match(void)
 {
-    double  wrote = rand() * rand() / rand();
+    double  wrote = random_float();
     uint8_t buf[sizeof(wrote)];
     write_be(buf, wrote);
     double read;
     read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    ASSERT_EQ_FMT(wrote, read, "%f");
     PASS();
 }
 
@@ -404,14 +565,7 @@ SUITE(generic_write_read_be)
 TEST
 generic_mixed_endian_u16_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-    } while (b0 == b1);
-    uint16_t wrote = b1 << 8 | b0;
+    uint16_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint16_t read;
@@ -426,14 +580,7 @@ generic_mixed_endian_u16_should_not_match(void)
 TEST
 generic_mixed_endian_i16_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-    } while (b0 == b1);
-    int16_t wrote = b1 << 8 | b0;
+    int16_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int16_t read;
@@ -448,18 +595,7 @@ generic_mixed_endian_i16_should_not_match(void)
 TEST
 generic_mixed_endian_u32_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    uint8_t b2;
-    uint8_t b3;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-        b2 = rand();
-        b3 = rand();
-    } while (b0 == b3);
-    uint32_t wrote = b3 << 24 | b2 << 16 | b1 << 8 | b0;
+    uint32_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint32_t read;
@@ -474,18 +610,7 @@ generic_mixed_endian_u32_should_not_match(void)
 TEST
 generic_mixed_endian_i32_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    uint8_t b2;
-    uint8_t b3;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-        b2 = rand();
-        b3 = rand();
-    } while (b0 == b3);
-    int32_t wrote = b3 << 24 | b2 << 16 | b1 << 8 | b0;
+    int32_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int32_t read;
@@ -500,29 +625,8 @@ generic_mixed_endian_i32_should_not_match(void)
 TEST
 generic_mixed_endian_u64_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    uint8_t b2;
-    uint8_t b3;
-    uint8_t b4;
-    uint8_t b5;
-    uint8_t b6;
-    uint8_t b7;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-        b2 = rand();
-        b3 = rand();
-        b4 = rand();
-        b5 = rand();
-        b6 = rand();
-        b7 = rand();
-    } while (b0 == b7);
-    uint64_t wrote = (uint64_t)b7 << 56 | (uint64_t)b6 << 48
-                     | (uint64_t)b5 << 40 | (uint64_t)b4 << 32 | 3 << 24
-                     | b2 << 16 | b1 << 8 | b0;
-    uint8_t buf[sizeof(wrote)];
+    uint64_t wrote = random_unique();
+    uint8_t  buf[sizeof(wrote)];
     write_le(buf, wrote);
     uint64_t read;
     read_be(&read, buf);
@@ -536,27 +640,7 @@ generic_mixed_endian_u64_should_not_match(void)
 TEST
 generic_mixed_endian_i64_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    uint8_t b2;
-    uint8_t b3;
-    uint8_t b4;
-    uint8_t b5;
-    uint8_t b6;
-    uint8_t b7;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-        b2 = rand();
-        b3 = rand();
-        b4 = rand();
-        b5 = rand();
-        b6 = rand();
-        b7 = rand();
-    } while (b0 == b7);
-    int64_t wrote = (int64_t)b7 << 56 | (int64_t)b6 << 48 | (int64_t)b5 << 40
-                    | (int64_t)b4 << 32 | 3 << 24 | b2 << 16 | b1 << 8 | b0;
+    int64_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     int64_t read;
@@ -571,18 +655,7 @@ generic_mixed_endian_i64_should_not_match(void)
 TEST
 generic_mixed_endian_f_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    uint8_t b2;
-    uint8_t b3;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-        b2 = rand();
-        b3 = rand();
-    } while (b0 == b3);
-    float   wrote = b3 << 24 | b2 << 16 | b1 << 8 | b0;
+    float   wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     float read;
@@ -597,27 +670,7 @@ generic_mixed_endian_f_should_not_match(void)
 TEST
 generic_mixed_endian_d_should_not_match(void)
 {
-    uint8_t b0;
-    uint8_t b1;
-    uint8_t b2;
-    uint8_t b3;
-    uint8_t b4;
-    uint8_t b5;
-    uint8_t b6;
-    uint8_t b7;
-    do
-    {
-        b0 = rand();
-        b1 = rand();
-        b2 = rand();
-        b3 = rand();
-        b4 = rand();
-        b5 = rand();
-        b6 = rand();
-        b7 = rand();
-    } while (b0 == b7);
-    double wrote = (uint64_t)b7 << 56 | (uint64_t)b6 << 48 | (uint64_t)b5 << 40
-                   | (uint64_t)b4 << 32 | 3 << 24 | b2 << 16 | b1 << 8 | b0;
+    double  wrote = random_float();
     uint8_t buf[sizeof(wrote)];
     write_le(buf, wrote);
     double read;
@@ -630,43 +683,36 @@ generic_mixed_endian_d_should_not_match(void)
 }
 
 TEST
-write_read_plan() {
+roundtrip_le_plan_shoud_match()
+{
+    /* Make a read/write plan */
     struct plan plan = plan_random();
+
+    /* Allocate the buffer we'll use to pack the plan's type into and read back
+     * out */
     uint8_t * buf = malloc(plan.req_buf_size);
-    for (size_t i = 0; i < plan.nis; i++) {
+
+    /* Create a bufrw object which will manage writing into the buffer */
+    struct bufrw ctx = bufrw_new(buf, plan.req_buf_size);
+
+    /* Iterate through the plan and encode it's values into the buffer */
+    for (size_t i = 0; i < plan.nis; i++)
+    {
+        enum bufrw_res res = bufrw_write_instr(&ctx, &plan.is[i]);
+        ASSERT_EQ_FMTm(
+            "bufrw_write_le returned an error", bufrw_res_ok, res, "%d");
+    }
+    ASSERT_EQ_FMTm("Position and len do not match", ctx.pos, ctx.len, "%d");
+
+    /* Create a bufrw object which will manage reading out of the buffer */
+    ctx = bufrw_new(buf, plan.req_buf_size);
+
+    /* Iterate through the plan, read values out of the ctx, and make sure they
+     * match the plan's instruction values */
+    for (size_t i = 0; i < plan.nis; i++)
+    {
         struct instruction const * instr = &plan.is[i];
-        switch (instr->it) {
-        case it_u8:
-            bufrw_write_le(ctx, &instr->u8);
-            break;
-        case it_i8:
-            bufrw_write_le(ctx, &instr->i8);
-            break;
-        case it_u16:
-            bufrw_write_le(ctx, &instr->u16);
-            break;
-        case it_i16:
-            bufrw_write_le(ctx, &instr->i16);
-            break;
-        case it_u32:
-            bufrw_write_le(ctx, &instr->u32);
-            break;
-        case it_i32:
-            bufrw_write_le(ctx, &instr->i32);
-            break;
-        case it_u64:
-            bufrw_write_le(ctx, &instr->u64);
-            break;
-        case it_i64:
-            bufrw_write_le(ctx, &instr->i64);
-            break;
-        case it_f:
-            bufrw_write_le(ctx, &instr->f);
-            break;
-        case it_d:
-            bufrw_write_le(ctx, &instr->d);
-            break;
-        }
+        GREATEST_CHECK_CALL(bufrw_read_le_and_compare_to_instr(&ctx, instr));
     }
     PASS();
 }
@@ -683,14 +729,11 @@ SUITE(generic_mixed_endian)
     RUN_TEST(generic_mixed_endian_d_should_not_match);
 }
 
-SUITE(plan)
-{
-    RUN_TEST(write_read_plan);
-}
-
+SUITE(plan) { RUN_TEST(roundtrip_le_plan_shoud_match); }
 int
 main(int argc, char ** argv)
 {
+    srandom(time(NULL));
     GREATEST_MAIN_BEGIN();
     RUN_SUITE(generic_write_read_le);
     RUN_SUITE(generic_write_read_be);
