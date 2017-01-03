@@ -9,8 +9,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-6
-      env: COMPILER=gcc-6
+            - gcc-4.9
+      env: COMPILER=gcc-4.9
     - compiler: clang
       addons:
         apt:
