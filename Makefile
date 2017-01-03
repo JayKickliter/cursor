@@ -1,29 +1,23 @@
-.PHONEY: test
+# Travis does not set CC to custom installed c-compiler.
+# It also does not allow you to override CC. The only option
+# is to use COMPILER which travis does allow you to export.
+COMPILER ?= $(CC)
+CFLAGS   += -Isrc -pedantic -W -Wall -Werror -Wextra -std=gnu11
+SRC	  = $(wildcard src/*.c)
+OBJ       = $(patsubst %.c,%.o,$(SRC))
+TEST      = src/cursor_test
 
-CC       ?=
-CFLAGS   += -pedantic -W -Wall -Werror -Wextra -std=gnu11
-CPPFLAGS += -Isrc
-LIB       = src/libcursor.a
-LIB_SRC   = $(wildcard src/*.c)
-LIB_OBJ   = $(patsubst %.c,%.o,$(LIB_SRC))
-TESTER    = tests/cursor_test
-TEST_SRC  = $(wildcard tests/*.c)
-TEST_OBJ  = $(patsubst %.c,%.o,$(TEST_SRC))
+all: $(TEST)
 
-all: $(TESTER)
+%.o: %.c
+	$(COMPILER) $(CFLAGS) -c $< -o $@
 
-$(LIB): $(LIB_OBJ)
-	ar rcs $@ $^
+$(TEST): $(OBJ)
+	$(COMPILER) -o $(TEST) $(OBJ)
 
-src/libcursor.a: $(LIB_OBJ)
-
-$(TESTER): $(TEST_OBJ) $(LIB)
-	$(CC) -o $(TESTER) $(TEST_OBJ) $(LIB_OBJ)
-
-test: $(TESTER)
-	$(TESTER)
+test: $(TEST)
+	$(TEST)
 
 clean:
-	rm -f $(LIB_OBJ)
-	rm -f $(TEST_OBJ)
-	rm -f $(LIB)
+	rm -f $(TEST)
+	rm -f $(OBJ)
