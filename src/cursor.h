@@ -117,34 +117,34 @@ cursor_read_be_d(struct cursor * restrict csr, double * restrict dst);
              )(_CSR, _DST)
 
 enum cursor_res
-cursor_write_le_u8(struct cursor * writer, uint8_t val);
+cursor_write_le_u8(struct cursor * csr, uint8_t val);
 
 enum cursor_res
-cursor_write_le_i8(struct cursor * writer, int8_t val);
+cursor_write_le_i8(struct cursor * csr, int8_t val);
 
 enum cursor_res
-cursor_write_le_u16(struct cursor * writer, uint16_t val);
+cursor_write_le_u16(struct cursor * csr, uint16_t val);
 
 enum cursor_res
-cursor_write_le_i16(struct cursor * writer, int16_t val);
+cursor_write_le_i16(struct cursor * csr, int16_t val);
 
 enum cursor_res
-cursor_write_le_u32(struct cursor * writer, uint32_t val);
+cursor_write_le_u32(struct cursor * csr, uint32_t val);
 
 enum cursor_res
-cursor_write_le_i32(struct cursor * writer, int32_t val);
+cursor_write_le_i32(struct cursor * csr, int32_t val);
 
 enum cursor_res
-cursor_write_le_u64(struct cursor * writer, uint64_t val);
+cursor_write_le_u64(struct cursor * csr, uint64_t val);
 
 enum cursor_res
-cursor_write_le_i64(struct cursor * writer, int64_t val);
+cursor_write_le_i64(struct cursor * csr, int64_t val);
 
 enum cursor_res
-cursor_write_le_f(struct cursor * writer, float val);
+cursor_write_le_f(struct cursor * csr, float val);
 
 enum cursor_res
-cursor_write_le_d(struct cursor * writer, double val);
+cursor_write_le_d(struct cursor * csr, double val);
 
 #define cursor_write_le(_CSR, _DST)                                            \
     _Generic((_DST),                                                           \
@@ -161,34 +161,34 @@ cursor_write_le_d(struct cursor * writer, double val);
              )(_CSR, _DST)
 
 enum cursor_res
-cursor_write_be_u8(struct cursor * writer, uint8_t val);
+cursor_write_be_u8(struct cursor * csr, uint8_t val);
 
 enum cursor_res
-cursor_write_be_i8(struct cursor * writer, int8_t val);
+cursor_write_be_i8(struct cursor * csr, int8_t val);
 
 enum cursor_res
-cursor_write_be_u16(struct cursor * writer, uint16_t val);
+cursor_write_be_u16(struct cursor * csr, uint16_t val);
 
 enum cursor_res
-cursor_write_be_i16(struct cursor * writer, uint16_t val);
+cursor_write_be_i16(struct cursor * csr, uint16_t val);
 
 enum cursor_res
-cursor_write_be_u32(struct cursor * writer, uint32_t val);
+cursor_write_be_u32(struct cursor * csr, uint32_t val);
 
 enum cursor_res
-cursor_write_be_i32(struct cursor * writer, uint32_t val);
+cursor_write_be_i32(struct cursor * csr, uint32_t val);
 
 enum cursor_res
-cursor_write_be_u64(struct cursor * writer, uint64_t val);
+cursor_write_be_u64(struct cursor * csr, uint64_t val);
 
 enum cursor_res
-cursor_write_be_i64(struct cursor * writer, uint64_t val);
+cursor_write_be_i64(struct cursor * csr, uint64_t val);
 
 enum cursor_res
-cursor_write_be_f(struct cursor * writer, float val);
+cursor_write_be_f(struct cursor * csr, float val);
 
 enum cursor_res
-cursor_write_be_d(struct cursor * writer, double val);
+cursor_write_be_d(struct cursor * csr, double val);
 
 #define cursor_write_be(_CSR, _DST)                                            \
     _Generic((_DST),                                                           \
