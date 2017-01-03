@@ -1,12 +1,9 @@
 #include "cursor.h"
-#include "greatest.h"
 #include "packing.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-GREATEST_MAIN_DEFS();
 
 static inline float
 random_float()
@@ -47,8 +44,11 @@ enum instruction_type
     it_f,
     it_d,
 };
-#define IT_VARIANT_CNT ((int)it_d + 1)
+#define IT_VARIANT_CNT (it_d + 1)
 static_assert(IT_VARIANT_CNT == 10, "");
+
+/* Include here so it does not interfere with the above assert */
+#include "greatest.h"
 
 /* A single 'instruction' in randmonized multi-part serialize/deserialize test
  * plan
@@ -730,6 +730,9 @@ SUITE(generic_mixed_endian)
 }
 
 SUITE(plan) { RUN_TEST(roundtrip_le_plan_shoud_match); }
+
+GREATEST_MAIN_DEFS();
+
 int
 main(int argc, char ** argv)
 {
