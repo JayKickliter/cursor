@@ -1,5 +1,5 @@
 #include "cursor.h"
-#include "endian.h"
+#include "packing.h"
 #include "greatest.h"
 #include <assert.h>
 #include <inttypes.h>

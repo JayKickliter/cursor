@@ -1,5 +1,5 @@
 #include "cursor.h"
-#include "endian.h"
+#include "packing.h"
 #include <assert.h>
 
 /* Check that buffer has enough bytes left to read the desired type out */
