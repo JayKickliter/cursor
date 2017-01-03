@@ -1,4 +1,4 @@
-#include "bufrw.h"
+#include "cursor.h"
 #include "endian.h"
 #include "greatest.h"
 #include <assert.h>
@@ -166,130 +166,130 @@ plan_random()
     return plan;
 }
 
-enum bufrw_res
-bufrw_write_instr(struct bufrw * ctx, struct instruction const * instr)
+enum cursor_res
+cursor_write_instr(struct cursor * csr, struct instruction const * instr)
 {
-    enum bufrw_res res;
+    enum cursor_res res;
     switch (instr->it)
     {
     case it_u8:
-        res = bufrw_write_le(ctx, instr->val.u8);
+        res = cursor_write_le(csr, instr->val.u8);
         break;
     case it_i8:
-        res = bufrw_write_le(ctx, instr->val.i8);
+        res = cursor_write_le(csr, instr->val.i8);
         break;
     case it_u16:
-        res = bufrw_write_le(ctx, instr->val.u16);
+        res = cursor_write_le(csr, instr->val.u16);
         break;
     case it_i16:
-        res = bufrw_write_le(ctx, instr->val.i16);
+        res = cursor_write_le(csr, instr->val.i16);
         break;
     case it_u32:
-        res = bufrw_write_le(ctx, instr->val.u32);
+        res = cursor_write_le(csr, instr->val.u32);
         break;
     case it_i32:
-        res = bufrw_write_le(ctx, instr->val.i32);
+        res = cursor_write_le(csr, instr->val.i32);
         break;
     case it_u64:
-        res = bufrw_write_le(ctx, instr->val.u64);
+        res = cursor_write_le(csr, instr->val.u64);
         break;
     case it_i64:
-        res = bufrw_write_le(ctx, instr->val.i64);
+        res = cursor_write_le(csr, instr->val.i64);
         break;
     case it_f:
-        res = bufrw_write_le(ctx, instr->val.f);
+        res = cursor_write_le(csr, instr->val.f);
         break;
     case it_d:
-        res = bufrw_write_le(ctx, instr->val.d);
+        res = cursor_write_le(csr, instr->val.d);
         break;
     }
     return res;
 }
 
 TEST
-bufrw_read_le_and_compare_to_instr(struct bufrw *             ctx,
-                                   struct instruction const * instr)
+cursor_read_le_and_compare_to_instr(struct cursor *            csr,
+                                    struct instruction const * instr)
 {
     char err_msg[64];
     snprintf(err_msg,
              sizeof(err_msg),
              "Read value does not match at position %zd",
-             ctx->pos);
-    enum bufrw_res res;
+             csr->pos);
+    enum cursor_res res;
     switch (instr->it)
     {
     case it_u8:
     {
         uint8_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, PRIu8);
     }
     break;
     case it_i8:
     {
         int8_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, PRId8);
         break;
     }
     case it_u16:
     {
         uint16_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, PRId16);
     }
     break;
     case it_i16:
     {
         int16_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, PRId16);
     }
     break;
     case it_u32:
     {
         uint32_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, PRIu32);
     }
     break;
     case it_i32:
     {
         int32_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMT(instr->val.i32, val, PRId32);
     }
     break;
     case it_u64:
     {
         uint64_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, PRIu64);
     }
     break;
     case it_i64:
     {
         int64_t val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, PRId64);
     }
     break;
     case it_f:
     {
         float val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.f, val, "%f");
     }
     break;
     case it_d:
     {
         double val;
-        res = bufrw_read_le(ctx, &val);
+        res = cursor_read_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.d, val, "%f");
     }
     break;
     }
-    ASSERT_EQ(bufrw_res_ok, res);
+    ASSERT_EQ(cursor_res_ok, res);
     PASS();
 }
 
@@ -692,27 +692,27 @@ roundtrip_le_plan_shoud_match()
      * out */
     uint8_t * buf = malloc(plan.req_buf_size);
 
-    /* Create a bufrw object which will manage writing into the buffer */
-    struct bufrw ctx = bufrw_new(buf, plan.req_buf_size);
+    /* Create a cursor object which will manage writing into the buffer */
+    struct cursor csr = cursor_new(buf, plan.req_buf_size);
 
     /* Iterate through the plan and encode it's values into the buffer */
     for (size_t i = 0; i < plan.nis; i++)
     {
-        enum bufrw_res res = bufrw_write_instr(&ctx, &plan.is[i]);
+        enum cursor_res res = cursor_write_instr(&csr, &plan.is[i]);
         ASSERT_EQ_FMTm(
-            "bufrw_write_le returned an error", bufrw_res_ok, res, "%d");
+            "cursor_write_le returned an error", cursor_res_ok, res, "%d");
     }
-    ASSERT_EQ_FMTm("Position and len do not match", ctx.pos, ctx.len, "%d");
+    ASSERT_EQ_FMTm("Position and len do not match", csr.pos, csr.len, "%d");
 
-    /* Create a bufrw object which will manage reading out of the buffer */
-    ctx = bufrw_new(buf, plan.req_buf_size);
+    /* Create a cursor object which will manage reading out of the buffer */
+    csr = cursor_new(buf, plan.req_buf_size);
 
-    /* Iterate through the plan, read values out of the ctx, and make sure they
+    /* Iterate through the plan, read values out of the csr, and make sure they
      * match the plan's instruction values */
     for (size_t i = 0; i < plan.nis; i++)
     {
         struct instruction const * instr = &plan.is[i];
-        GREATEST_CHECK_CALL(bufrw_read_le_and_compare_to_instr(&ctx, instr));
+        GREATEST_CHECK_CALL(cursor_read_le_and_compare_to_instr(&csr, instr));
     }
     PASS();
 }
