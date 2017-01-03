@@ -1,5 +1,5 @@
-#ifndef ENDIAN_H
-#define ENDIAN_H
+#ifndef PACKING_H
+#define PACKING_H
 
 #include <stdint.h>
 
@@ -193,4 +193,4 @@ write_be_d(void * dst, double val);
              double:   write_be_d                                              \
 )(_DST, _VAL)
 
-#endif /* ENDIAN_H */
+#endif /* PACKING_H */
