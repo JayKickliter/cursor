@@ -1,6 +1,6 @@
 #include "cursor.h"
-#include "packing.h"
 #include "greatest.h"
+#include "packing.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
@@ -47,7 +47,7 @@ enum instruction_type
     it_f,
     it_d,
 };
-#define IT_VARIANT_CNT (it_d + 1)
+#define IT_VARIANT_CNT ((int)it_d + 1)
 static_assert(IT_VARIANT_CNT == 10, "");
 
 /* A single 'instruction' in randmonized multi-part serialize/deserialize test
