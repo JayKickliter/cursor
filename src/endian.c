@@ -63,17 +63,20 @@ read_le_i64(int64_t * restrict dst, void const * restrict src)
 void
 read_le_f(float * restrict dst, void const * restrict src)
 {
-    *dst = (SRC_BYTE(3) << 24) | (SRC_BYTE(2) << 16) | (SRC_BYTE(1) << 8)
-           | SRC_BYTE(0);
+    uint32_t val = (SRC_BYTE(3) << 24) | (SRC_BYTE(2) << 16)
+                   | (SRC_BYTE(1) << 8) | SRC_BYTE(0);
+    *((uint32_t *)dst) = val;
 }
 
 void
 read_le_d(double * restrict dst, void const * restrict src)
 {
-    *dst = ((uint64_t)SRC_BYTE(7) << 56) | ((uint64_t)SRC_BYTE(6) << 48)
-           | ((uint64_t)SRC_BYTE(5) << 40) | ((uint64_t)SRC_BYTE(4) << 32)
-           | ((uint64_t)SRC_BYTE(3) << 24) | ((uint64_t)SRC_BYTE(2) << 16)
-           | ((uint64_t)SRC_BYTE(1) << 8) | (uint64_t)SRC_BYTE(0);
+    uint64_t val =
+        ((uint64_t)SRC_BYTE(7) << 56) | ((uint64_t)SRC_BYTE(6) << 48)
+        | ((uint64_t)SRC_BYTE(5) << 40) | ((uint64_t)SRC_BYTE(4) << 32)
+        | ((uint64_t)SRC_BYTE(3) << 24) | ((uint64_t)SRC_BYTE(2) << 16)
+        | ((uint64_t)SRC_BYTE(1) << 8) | (uint64_t)SRC_BYTE(0);
+    *((uint64_t *)dst) = val;
 }
 
 
@@ -136,17 +139,20 @@ read_be_i64(int64_t * restrict dst, void const * restrict src)
 void
 read_be_f(float * restrict dst, void const * restrict src)
 {
-    *dst = (SRC_BYTE(0) << 24) | (SRC_BYTE(1) << 16) | (SRC_BYTE(2) << 8)
-           | SRC_BYTE(3);
+    uint32_t val = (SRC_BYTE(0) << 24) | (SRC_BYTE(1) << 16)
+                   | (SRC_BYTE(2) << 8) | SRC_BYTE(3);
+    *((uint32_t *)dst) = val;
 }
 
 void
 read_be_d(double * restrict dst, void const * restrict src)
 {
-    *dst = ((uint64_t)SRC_BYTE(0) << 56) | ((uint64_t)SRC_BYTE(1) << 48)
-           | ((uint64_t)SRC_BYTE(2) << 40) | ((uint64_t)SRC_BYTE(3) << 32)
-           | ((uint64_t)SRC_BYTE(4) << 24) | ((uint64_t)SRC_BYTE(5) << 16)
-           | ((uint64_t)SRC_BYTE(6) << 8) | (uint64_t)SRC_BYTE(7);
+    uint64_t val =
+        ((uint64_t)SRC_BYTE(0) << 56) | ((uint64_t)SRC_BYTE(1) << 48)
+        | ((uint64_t)SRC_BYTE(2) << 40) | ((uint64_t)SRC_BYTE(3) << 32)
+        | ((uint64_t)SRC_BYTE(4) << 24) | ((uint64_t)SRC_BYTE(5) << 16)
+        | ((uint64_t)SRC_BYTE(6) << 8) | (uint64_t)SRC_BYTE(7);
+    *((uint64_t *)dst) = val;
 }
 
 void
@@ -225,26 +231,24 @@ void
 write_le_f(void * dst, float val)
 {
     uint32_t val_cast = *((uint32_t *)&val);
-    DST_BYTE(0) = val_cast & 0xff;
-    DST_BYTE(1) = (val_cast >> 8) & 0xff;
-    DST_BYTE(2) = (val_cast >> 16) & 0xff;
-    DST_BYTE(3) = (val_cast >> 24) & 0xff;
+    DST_BYTE(0)       = val_cast & 0xff;
+    DST_BYTE(1)       = (val_cast >> 8) & 0xff;
+    DST_BYTE(2)       = (val_cast >> 16) & 0xff;
+    DST_BYTE(3)       = (val_cast >> 24) & 0xff;
 }
-
-
 
 void
 write_le_d(void * dst, double val)
 {
     uint64_t val_cast = *((uint64_t *)&val);
-    DST_BYTE(0) = val_cast & 0xff;
-    DST_BYTE(1) = (val_cast >> 8) & 0xff;
-    DST_BYTE(2) = (val_cast >> 16) & 0xff;
-    DST_BYTE(3) = (val_cast >> 24) & 0xff;
-    DST_BYTE(4) = (val_cast >> 32) & 0xff;
-    DST_BYTE(5) = (val_cast >> 40) & 0xff;
-    DST_BYTE(6) = (val_cast >> 48) & 0xff;
-    DST_BYTE(7) = (val_cast >> 56) & 0xff;
+    DST_BYTE(0)       = val_cast & 0xff;
+    DST_BYTE(1)       = (val_cast >> 8) & 0xff;
+    DST_BYTE(2)       = (val_cast >> 16) & 0xff;
+    DST_BYTE(3)       = (val_cast >> 24) & 0xff;
+    DST_BYTE(4)       = (val_cast >> 32) & 0xff;
+    DST_BYTE(5)       = (val_cast >> 40) & 0xff;
+    DST_BYTE(6)       = (val_cast >> 48) & 0xff;
+    DST_BYTE(7)       = (val_cast >> 56) & 0xff;
 }
 
 void
@@ -322,24 +326,22 @@ void
 write_be_f(void * dst, float val)
 {
     uint32_t val_cast = *((uint32_t *)&val);
-    DST_BYTE(0) = (val_cast >> 24) & 0xff;
-    DST_BYTE(1) = (val_cast >> 16) & 0xff;
-    DST_BYTE(2) = (val_cast >> 8) & 0xff;
-    DST_BYTE(3) = val_cast & 0xff;
+    DST_BYTE(0)       = (val_cast >> 24) & 0xff;
+    DST_BYTE(1)       = (val_cast >> 16) & 0xff;
+    DST_BYTE(2)       = (val_cast >> 8) & 0xff;
+    DST_BYTE(3)       = val_cast & 0xff;
 }
-
-
 
 void
 write_be_d(void * dst, double val)
 {
     uint64_t val_cast = *((uint64_t *)&val);
-    DST_BYTE(0) = (val_cast >> 56) & 0xff;
-    DST_BYTE(1) = (val_cast >> 48) & 0xff;
-    DST_BYTE(2) = (val_cast >> 40) & 0xff;
-    DST_BYTE(3) = (val_cast >> 32) & 0xff;
-    DST_BYTE(4) = (val_cast >> 24) & 0xff;
-    DST_BYTE(5) = (val_cast >> 16) & 0xff;
-    DST_BYTE(6) = (val_cast >> 8) & 0xff;
-    DST_BYTE(7) = val_cast & 0xff;
+    DST_BYTE(0)       = (val_cast >> 56) & 0xff;
+    DST_BYTE(1)       = (val_cast >> 48) & 0xff;
+    DST_BYTE(2)       = (val_cast >> 40) & 0xff;
+    DST_BYTE(3)       = (val_cast >> 32) & 0xff;
+    DST_BYTE(4)       = (val_cast >> 24) & 0xff;
+    DST_BYTE(5)       = (val_cast >> 16) & 0xff;
+    DST_BYTE(6)       = (val_cast >> 8) & 0xff;
+    DST_BYTE(7)       = val_cast & 0xff;
 }
