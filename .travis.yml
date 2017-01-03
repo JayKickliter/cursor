@@ -1,0 +1,22 @@
+language: c
+# See http://genbattle.bitbucket.org/blog/2016/01/17/c++-travis-ci/
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+      env: CC=gcc-5
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+          packages:
+            - clang-3.7
+      env: CC=clang-3.7
+script: make test

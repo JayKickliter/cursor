@@ -1,7 +1,7 @@
 .PHONEY: test
 
 CC       ?=
-CFLAGS   += -pedantic -W -Wall -Werror -Wextra -std=c11
+CFLAGS   += -pedantic -W -Wall -Werror -Wextra -std=gnu11
 CPPFLAGS += -Isrc
 LIB       = src/libcursor.a
 LIB_SRC   = $(wildcard src/*.c)
