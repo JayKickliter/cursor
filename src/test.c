@@ -207,56 +207,56 @@ cursor_read_le_and_compare_to_instr(struct cursor *            csr,
     {
         uint8_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, PRIu8);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, "%"PRIu8);
     }
     break;
     case it_i8:
     {
         int8_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, PRId8);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, "%"PRId8);
         break;
     }
     case it_u16:
     {
         uint16_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, PRId16);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, "%"PRId16);
     }
     break;
     case it_i16:
     {
         int16_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, PRId16);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, "%"PRId16);
     }
     break;
     case it_u32:
     {
         uint32_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, PRIu32);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, "%"PRIu32);
     }
     break;
     case it_i32:
     {
         int32_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMT(instr->val.i32, val, PRId32);
+        ASSERT_EQ_FMT(instr->val.i32, val, "%"PRId32);
     }
     break;
     case it_u64:
     {
         uint64_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, PRIu64);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, "%"PRIu64);
     }
     break;
     case it_i64:
     {
         int64_t val;
         res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, PRId64);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, "%"PRId64);
     }
     break;
     case it_f:
