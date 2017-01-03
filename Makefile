@@ -7,13 +7,21 @@ SRC	  = $(wildcard src/*.c)
 OBJ       = $(patsubst %.c,%.o,$(SRC))
 TEST      = src/cursor_test
 
+# Enable coverage reporting when GENERATE_COVERAGE=ON
+# GENERATE_COVERAGE is defined to ON when building on travis
+# with gcc
+ifeq ($(COVERAGE),ON)
+CFLAGS += --coverage
+endif
+
+
 all: $(TEST)
 
 %.o: %.c
 	$(COMPILER) $(CFLAGS) -c $< -o $@
 
 $(TEST): $(OBJ)
-	$(COMPILER) -o $(TEST) $(OBJ)
+	$(COMPILER) $(CFLAGS) -o $(TEST) $(OBJ)
 
 test: $(TEST)
 	$(TEST)
@@ -21,3 +29,5 @@ test: $(TEST)
 clean:
 	rm -f $(TEST)
 	rm -f $(OBJ)
+	rm -f src/*.gcda*
+	rm -f src/*.gcno*

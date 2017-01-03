@@ -1,3 +1,5 @@
 cursor_test
 *.o
 *.a
+*.gcda*
+*.gcno*
