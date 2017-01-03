@@ -1,4 +1,5 @@
 language: c
+
 # See http://genbattle.bitbucket.org/blog/2016/01/17/c++-travis-ci/
 matrix:
   include:
@@ -20,7 +21,4 @@ matrix:
             - clang-3.7
       env: COMPILER=clang-3.7
 
-compiler:
-  - gcc-5
-  - clang-3.7
 script: make test
