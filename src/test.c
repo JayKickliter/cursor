@@ -25,13 +25,6 @@ random_unique()
     return 0;
 }
 
-static size_t
-random_size(size_t max, size_t min)
-{
-    assert(max > min);
-    return (random() % (max + 1 - min)) + min;
-}
-
 enum instruction_type
 {
     it_u8,
@@ -143,24 +136,17 @@ struct plan
 };
 
 struct plan
-plan_random()
+plan_random(struct instruction * is, size_t nis)
 {
-    size_t plan_size = random_size(80192, 1024);
-
-    struct instruction * is = malloc(plan_size * sizeof(struct instruction));
-    for (size_t i = 0; i < plan_size; i++)
+    size_t req_buf_size = 0;
+    for (size_t i = 0; i < nis; i++)
     {
         is[i] = instruction_random();
-    }
-
-    size_t req_buf_size = 0;
-    for (size_t i = 0; i < plan_size; i++)
-    {
         req_buf_size += is[i].val_size;
     }
 
     struct plan plan = {
-        .is = is, .nis = plan_size, .req_buf_size = req_buf_size,
+        .is = is, .nis = nis, .req_buf_size = req_buf_size,
     };
     return plan;
 }
@@ -681,18 +667,18 @@ generic_mixed_endian_d_should_not_match(void)
     PASS();
 }
 
+#define TEST_PLAN_SIZE 100000
+struct instruction is[TEST_PLAN_SIZE];
+uint8_t            test_buf[TEST_PLAN_SIZE * sizeof(uint64_t)];
+
 TEST
 roundtrip_le_plan_shoud_match()
 {
     /* Make a read/write plan */
-    struct plan plan = plan_random();
-
-    /* Allocate the buffer we'll use to pack the plan's type into and read back
-     * out */
-    uint8_t * buf = malloc(plan.req_buf_size);
+    struct plan plan = plan_random(is, TEST_PLAN_SIZE);
 
     /* Create a cursor object which will manage writing into the buffer */
-    struct cursor csr = cursor_new(buf, plan.req_buf_size);
+    struct cursor csr = cursor_new(test_buf, plan.req_buf_size);
 
     /* Iterate through the plan and encode it's values into the buffer */
     for (size_t i = 0; i < plan.nis; i++)
@@ -704,7 +690,7 @@ roundtrip_le_plan_shoud_match()
     ASSERT_EQ_FMTm("Position and len do not match", csr.pos, csr.len, "%d");
 
     /* Create a cursor object which will manage reading out of the buffer */
-    csr = cursor_new(buf, plan.req_buf_size);
+    csr = cursor_new(test_buf, plan.req_buf_size);
 
     /* Iterate through the plan, read values out of the csr, and make sure they
      * match the plan's instruction values */
