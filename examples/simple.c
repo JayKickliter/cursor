@@ -47,7 +47,7 @@ main(int argc, char * argv[])
      * Let's verify that attempting another pack operation returns an error.
      * Note that we're explicitly calling `cursor_pack_le_u8` here, and not
      * using the type-generic `cursor_pack_le` macro */
-    assert(cursor_pack_le_u16(&csr, rand()) == cursor_buf_err_exhausted);
+    assert(cursor_pack_le_u16(&csr, rand()) == cursor_res_err_buf_exhausted);
 
     /* We'll unpack our packed variables into these variables */
     uint8_t  unpacked_u8;

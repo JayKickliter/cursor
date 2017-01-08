@@ -17,7 +17,7 @@ cursor_new(void * buf, size_t buflen)
     {                                                                          \
         if ((_CSR->pos + sizeof(_PRIM_TYPE)) > _CSR->len)                      \
         {                                                                      \
-            return cursor_buf_err_exhausted;                                   \
+            return cursor_res_err_buf_exhausted;                               \
         }                                                                      \
     } while (0)
 

@@ -17,7 +17,7 @@ enum cursor_res
     /* The unpack/pack operation was successful */
     cursor_res_ok,
     /* No more bytes left in the buffer */
-    cursor_buf_err_exhausted,
+    cursor_res_err_buf_exhausted,
 };
 
 
