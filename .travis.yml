@@ -28,4 +28,4 @@ install:
 script: make test
 
 after_success:
-  - coveralls --verbose --gcov-options '\-lp' --gcov 'gcov-4.9'
+  - test "${COVERAGE}" == 'ON' && coveralls --gcov-options '\-lp' --gcov 'gcov-4.9'
