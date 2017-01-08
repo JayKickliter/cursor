@@ -5,7 +5,8 @@ COMPILER ?= $(CC)
 CFLAGS   += -Isrc -pedantic -W -Wall -Werror -Wextra -std=gnu11
 SRC	  = $(wildcard src/*.c)
 OBJ       = $(patsubst %.c,%.o,$(SRC))
-TEST      = src/cursor_test
+TEST      = tests/test
+EXAMPLE   = examples/simple
 
 # Enable coverage reporting when GENERATE_COVERAGE=ON
 # GENERATE_COVERAGE is defined to ON when building on travis
@@ -15,19 +16,24 @@ CFLAGS += --coverage
 endif
 
 
-all: $(TEST)
+all: $(EXAMPLE) $(TEST)
 
 %.o: %.c
 	$(COMPILER) $(CFLAGS) -c $< -o $@
 
-$(TEST): $(OBJ)
-	$(COMPILER) $(CFLAGS) -o $(TEST) $(OBJ)
+$(TEST): $(OBJ) tests/test.o
+	$(COMPILER) $(CFLAGS) -o $(TEST) $^
 
-test: $(TEST)
+$(EXAMPLE): $(OBJ) examples/simple.o
+	$(COMPILER) $(CFLAGS) -o $(EXAMPLE) $^
+
+test: $(TEST) $(EXAMPLE)
 	$(TEST)
+	$(EXAMPLE)
 
 clean:
+	find . -name *.o | xargs rm
+	find . -name *.gcda* | xargs rm
+	find . -name *.gcno* | xargs rm
 	rm -f $(TEST)
-	rm -f $(OBJ)
-	rm -f src/*.gcda*
-	rm -f src/*.gcno*
+	rm -f $(EXAMPLE)

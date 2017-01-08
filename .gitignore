@@ -1,4 +1,5 @@
-cursor_test
+tests/test
+examples/simple
 *.o
 *.a
 *.gcda*
