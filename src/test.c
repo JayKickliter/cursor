@@ -152,53 +152,53 @@ plan_random(struct instruction * is, size_t nis)
 }
 
 enum cursor_res
-cursor_write_instr(struct cursor * csr, struct instruction const * instr)
+cursor_pack_instr(struct cursor * csr, struct instruction const * instr)
 {
     enum cursor_res res;
     switch (instr->it)
     {
     case it_u8:
-        res = cursor_write_le(csr, instr->val.u8);
+        res = cursor_pack_le(csr, instr->val.u8);
         break;
     case it_i8:
-        res = cursor_write_le(csr, instr->val.i8);
+        res = cursor_pack_le(csr, instr->val.i8);
         break;
     case it_u16:
-        res = cursor_write_le(csr, instr->val.u16);
+        res = cursor_pack_le(csr, instr->val.u16);
         break;
     case it_i16:
-        res = cursor_write_le(csr, instr->val.i16);
+        res = cursor_pack_le(csr, instr->val.i16);
         break;
     case it_u32:
-        res = cursor_write_le(csr, instr->val.u32);
+        res = cursor_pack_le(csr, instr->val.u32);
         break;
     case it_i32:
-        res = cursor_write_le(csr, instr->val.i32);
+        res = cursor_pack_le(csr, instr->val.i32);
         break;
     case it_u64:
-        res = cursor_write_le(csr, instr->val.u64);
+        res = cursor_pack_le(csr, instr->val.u64);
         break;
     case it_i64:
-        res = cursor_write_le(csr, instr->val.i64);
+        res = cursor_pack_le(csr, instr->val.i64);
         break;
     case it_f:
-        res = cursor_write_le(csr, instr->val.f);
+        res = cursor_pack_le(csr, instr->val.f);
         break;
     case it_d:
-        res = cursor_write_le(csr, instr->val.d);
+        res = cursor_pack_le(csr, instr->val.d);
         break;
     }
     return res;
 }
 
 TEST
-cursor_read_le_and_compare_to_instr(struct cursor *            csr,
-                                    struct instruction const * instr)
+cursor_unpack_le_and_compare_to_instr(struct cursor *            csr,
+                                      struct instruction const * instr)
 {
     char err_msg[64];
     snprintf(err_msg,
              sizeof(err_msg),
-             "Read value does not match at position %zd",
+             "Unpack value does not match at position %zd",
              csr->pos);
     enum cursor_res res;
     switch (instr->it)
@@ -206,70 +206,70 @@ cursor_read_le_and_compare_to_instr(struct cursor *            csr,
     case it_u8:
     {
         uint8_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, "%"PRIu8);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, "%" PRIu8);
     }
     break;
     case it_i8:
     {
         int8_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, "%"PRId8);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, "%" PRId8);
         break;
     }
     case it_u16:
     {
         uint16_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, "%"PRId16);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, "%" PRId16);
     }
     break;
     case it_i16:
     {
         int16_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, "%"PRId16);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, "%" PRId16);
     }
     break;
     case it_u32:
     {
         uint32_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, "%"PRIu32);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, "%" PRIu32);
     }
     break;
     case it_i32:
     {
         int32_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMT(instr->val.i32, val, "%"PRId32);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMT(instr->val.i32, val, "%" PRId32);
     }
     break;
     case it_u64:
     {
         uint64_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, "%"PRIu64);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, "%" PRIu64);
     }
     break;
     case it_i64:
     {
         int64_t val;
-        res = cursor_read_le(csr, &val);
-        ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, "%"PRId64);
+        res = cursor_unpack_le(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, "%" PRId64);
     }
     break;
     case it_f:
     {
         float val;
-        res = cursor_read_le(csr, &val);
+        res = cursor_unpack_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.f, val, "%f");
     }
     break;
     case it_d:
     {
         double val;
-        res = cursor_read_le(csr, &val);
+        res = cursor_unpack_le(csr, &val);
         ASSERT_EQ_FMTm(err_msg, instr->val.d, val, "%f");
     }
     break;
@@ -280,271 +280,271 @@ cursor_read_le_and_compare_to_instr(struct cursor *            csr,
 
 
 TEST
-generic_write_read_le_u8_should_match(void)
+generic_pack_unpack_le_u8_should_match(void)
 {
     uint8_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint8_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    uint8_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_i8_should_match(void)
+generic_pack_unpack_le_i8_should_match(void)
 {
     int8_t  wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int8_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    int8_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_u16_should_match(void)
+generic_pack_unpack_le_u16_should_match(void)
 {
     uint16_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint16_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    uint16_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_i16_should_match(void)
+generic_pack_unpack_le_i16_should_match(void)
 {
     int16_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int16_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    int16_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_u32_should_match(void)
+generic_pack_unpack_le_u32_should_match(void)
 {
     uint32_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint32_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    uint32_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_i32_should_match(void)
+generic_pack_unpack_le_i32_should_match(void)
 {
     int32_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int32_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    int32_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_u64_should_match(void)
+generic_pack_unpack_le_u64_should_match(void)
 {
     uint64_t wrote = ((uint64_t)random() << 32) & random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint64_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    uint64_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_i64_should_match(void)
+generic_pack_unpack_le_i64_should_match(void)
 {
     int64_t wrote = ((int64_t)random() << 32) & random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int64_t read;
-    read_le(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_le(buf, wrote);
+    int64_t unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_le_f_should_match(void)
+generic_pack_unpack_le_f_should_match(void)
 {
     float   wrote = random_float();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    float read;
-    read_le(&read, buf);
-    ASSERT_EQ_FMT(wrote, read, "%f");
+    pack_le(buf, wrote);
+    float unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ_FMT(wrote, unpack, "%f");
     PASS();
 }
 
 TEST
-generic_write_read_le_d_should_match(void)
+generic_pack_unpack_le_d_should_match(void)
 {
     double  wrote = random_float();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    double read;
-    read_le(&read, buf);
-    ASSERT_EQ_FMT(wrote, read, "%f");
+    pack_le(buf, wrote);
+    double unpack;
+    unpack_le(&unpack, buf);
+    ASSERT_EQ_FMT(wrote, unpack, "%f");
     PASS();
 }
 
-SUITE(generic_write_read_le)
+SUITE(generic_pack_unpack_le)
 {
-    RUN_TEST(generic_write_read_le_u8_should_match);
-    RUN_TEST(generic_write_read_le_i8_should_match);
-    RUN_TEST(generic_write_read_le_u16_should_match);
-    RUN_TEST(generic_write_read_le_i16_should_match);
-    RUN_TEST(generic_write_read_le_u32_should_match);
-    RUN_TEST(generic_write_read_le_i32_should_match);
-    RUN_TEST(generic_write_read_le_u64_should_match);
-    RUN_TEST(generic_write_read_le_i64_should_match);
-    RUN_TEST(generic_write_read_le_f_should_match);
-    RUN_TEST(generic_write_read_le_d_should_match);
+    RUN_TEST(generic_pack_unpack_le_u8_should_match);
+    RUN_TEST(generic_pack_unpack_le_i8_should_match);
+    RUN_TEST(generic_pack_unpack_le_u16_should_match);
+    RUN_TEST(generic_pack_unpack_le_i16_should_match);
+    RUN_TEST(generic_pack_unpack_le_u32_should_match);
+    RUN_TEST(generic_pack_unpack_le_i32_should_match);
+    RUN_TEST(generic_pack_unpack_le_u64_should_match);
+    RUN_TEST(generic_pack_unpack_le_i64_should_match);
+    RUN_TEST(generic_pack_unpack_le_f_should_match);
+    RUN_TEST(generic_pack_unpack_le_d_should_match);
 }
 
 TEST
-generic_write_read_be_u8_should_match(void)
+generic_pack_unpack_be_u8_should_match(void)
 {
     uint8_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    uint8_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    uint8_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_i8_should_match(void)
+generic_pack_unpack_be_i8_should_match(void)
 {
     int8_t  wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    int8_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    int8_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_u16_should_match(void)
+generic_pack_unpack_be_u16_should_match(void)
 {
     uint16_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    uint16_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    uint16_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_i16_should_match(void)
+generic_pack_unpack_be_i16_should_match(void)
 {
     int16_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    int16_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    int16_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_u32_should_match(void)
+generic_pack_unpack_be_u32_should_match(void)
 {
     uint32_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    uint32_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    uint32_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_i32_should_match(void)
+generic_pack_unpack_be_i32_should_match(void)
 {
     int32_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    int32_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    int32_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_u64_should_match(void)
+generic_pack_unpack_be_u64_should_match(void)
 {
     uint64_t wrote = ((uint64_t)random() << 32) & random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    uint64_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    uint64_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_i64_should_match(void)
+generic_pack_unpack_be_i64_should_match(void)
 {
     int64_t wrote = ((int64_t)random() << 32) & random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    int64_t read;
-    read_be(&read, buf);
-    ASSERT_EQ(wrote, read);
+    pack_be(buf, wrote);
+    int64_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ(wrote, unpack);
     PASS();
 }
 
 TEST
-generic_write_read_be_f_should_match(void)
+generic_pack_unpack_be_f_should_match(void)
 {
     float   wrote = random_float();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    float read;
-    read_be(&read, buf);
-    ASSERT_EQ_FMT(wrote, read, "%f");
+    pack_be(buf, wrote);
+    float unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ_FMT(wrote, unpack, "%f");
     PASS();
 }
 
 TEST
-generic_write_read_be_d_should_match(void)
+generic_pack_unpack_be_d_should_match(void)
 {
     double  wrote = random_float();
     uint8_t buf[sizeof(wrote)];
-    write_be(buf, wrote);
-    double read;
-    read_be(&read, buf);
-    ASSERT_EQ_FMT(wrote, read, "%f");
+    pack_be(buf, wrote);
+    double unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_EQ_FMT(wrote, unpack, "%f");
     PASS();
 }
 
-SUITE(generic_write_read_be)
+SUITE(generic_pack_unpack_be)
 {
-    RUN_TEST(generic_write_read_be_u8_should_match);
-    RUN_TEST(generic_write_read_be_i8_should_match);
-    RUN_TEST(generic_write_read_be_u16_should_match);
-    RUN_TEST(generic_write_read_be_i16_should_match);
-    RUN_TEST(generic_write_read_be_u32_should_match);
-    RUN_TEST(generic_write_read_be_i32_should_match);
-    RUN_TEST(generic_write_read_be_u64_should_match);
-    RUN_TEST(generic_write_read_be_i64_should_match);
-    RUN_TEST(generic_write_read_be_f_should_match);
-    RUN_TEST(generic_write_read_be_d_should_match);
+    RUN_TEST(generic_pack_unpack_be_u8_should_match);
+    RUN_TEST(generic_pack_unpack_be_i8_should_match);
+    RUN_TEST(generic_pack_unpack_be_u16_should_match);
+    RUN_TEST(generic_pack_unpack_be_i16_should_match);
+    RUN_TEST(generic_pack_unpack_be_u32_should_match);
+    RUN_TEST(generic_pack_unpack_be_i32_should_match);
+    RUN_TEST(generic_pack_unpack_be_u64_should_match);
+    RUN_TEST(generic_pack_unpack_be_i64_should_match);
+    RUN_TEST(generic_pack_unpack_be_f_should_match);
+    RUN_TEST(generic_pack_unpack_be_d_should_match);
 }
 
 TEST
@@ -552,13 +552,13 @@ generic_mixed_endian_u16_should_not_match(void)
 {
     uint16_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint16_t read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    uint16_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -567,13 +567,13 @@ generic_mixed_endian_i16_should_not_match(void)
 {
     int16_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int16_t read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    int16_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -582,13 +582,13 @@ generic_mixed_endian_u32_should_not_match(void)
 {
     uint32_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint32_t read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    uint32_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -597,13 +597,13 @@ generic_mixed_endian_i32_should_not_match(void)
 {
     int32_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int32_t read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    int32_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -612,13 +612,13 @@ generic_mixed_endian_u64_should_not_match(void)
 {
     uint64_t wrote = random_unique();
     uint8_t  buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    uint64_t read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    uint64_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -627,13 +627,13 @@ generic_mixed_endian_i64_should_not_match(void)
 {
     int64_t wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    int64_t read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    int64_t unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -642,13 +642,13 @@ generic_mixed_endian_f_should_not_match(void)
 {
     float   wrote = random_unique();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    float read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    float unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -657,13 +657,13 @@ generic_mixed_endian_d_should_not_match(void)
 {
     double  wrote = random_float();
     uint8_t buf[sizeof(wrote)];
-    write_le(buf, wrote);
-    double read;
-    read_be(&read, buf);
-    ASSERT_FALSE(wrote == read);
-    write_be(buf, wrote);
-    read_le(&read, buf);
-    ASSERT_FALSE(wrote == read);
+    pack_le(buf, wrote);
+    double unpack;
+    unpack_be(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
+    pack_be(buf, wrote);
+    unpack_le(&unpack, buf);
+    ASSERT_FALSE(wrote == unpack);
     PASS();
 }
 
@@ -674,7 +674,7 @@ uint8_t            test_buf[TEST_PLAN_SIZE * sizeof(uint64_t)];
 TEST
 roundtrip_le_plan_shoud_match()
 {
-    /* Make a read/write plan */
+    /* Make a unpack/pack plan */
     struct plan plan = plan_random(is, TEST_PLAN_SIZE);
 
     /* Create a cursor object which will manage writing into the buffer */
@@ -683,21 +683,22 @@ roundtrip_le_plan_shoud_match()
     /* Iterate through the plan and encode it's values into the buffer */
     for (size_t i = 0; i < plan.nis; i++)
     {
-        enum cursor_res res = cursor_write_instr(&csr, &plan.is[i]);
+        enum cursor_res res = cursor_pack_instr(&csr, &plan.is[i]);
         ASSERT_EQ_FMTm(
-            "cursor_write_le returned an error", cursor_res_ok, res, "%d");
+            "cursor_pack_le returned an error", cursor_res_ok, res, "%d");
     }
     ASSERT_EQ_FMTm("Position and len do not match", csr.pos, csr.len, "%d");
 
-    /* Create a cursor object which will manage reading out of the buffer */
+    /* Create a cursor object which will manage unpacking out of the buffer */
     csr = cursor_new(test_buf, plan.req_buf_size);
 
-    /* Iterate through the plan, read values out of the csr, and make sure they
+    /* Iterate through the plan, unpack values out of the csr, and make sure
+     * they
      * match the plan's instruction values */
     for (size_t i = 0; i < plan.nis; i++)
     {
         struct instruction const * instr = &plan.is[i];
-        GREATEST_CHECK_CALL(cursor_read_le_and_compare_to_instr(&csr, instr));
+        GREATEST_CHECK_CALL(cursor_unpack_le_and_compare_to_instr(&csr, instr));
     }
     PASS();
 }
@@ -722,8 +723,8 @@ main(int argc, char ** argv)
 {
     srandom(time(NULL));
     GREATEST_MAIN_BEGIN();
-    RUN_SUITE(generic_write_read_le);
-    RUN_SUITE(generic_write_read_be);
+    RUN_SUITE(generic_pack_unpack_le);
+    RUN_SUITE(generic_pack_unpack_be);
     RUN_SUITE(generic_mixed_endian);
     RUN_SUITE(plan);
     GREATEST_MAIN_END();
