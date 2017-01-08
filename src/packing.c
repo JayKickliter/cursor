@@ -1,347 +1,181 @@
 #include "packing.h"
 
-#define SRC_BYTE(_IDX) (((uint8_t *)src)[_IDX])
-#define DST_BYTE(_IDX) (((uint8_t *)dst)[_IDX])
+#define SRC ((uint8_t *)src)
+#define DST ((uint8_t *)dst)
 
+#define GENERATE_UNPACK_LE_8(_PRIM_TYPE, _SHORT_NAME)                          \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        *dst = SRC[0];                                                         \
+    }
 
-void
-read_le_u8(uint8_t * restrict dst, void const * restrict src)
-{
-    *dst = SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_LE_16(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        *dst = (SRC[1] << 8) | SRC[0];                                         \
+    }
 
-void
-read_le_i8(int8_t * restrict dst, void const * restrict src)
-{
-    *dst = SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        uint32_t val =                                                         \
+            (SRC[3] << 24) | (SRC[2] << 16) | (SRC[1] << 8) | SRC[0];          \
+        *((uint32_t *)dst) = val;                                              \
+    }
 
-void
-read_le_u16(uint16_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(1) << 8) | SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_LE_64(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        uint64_t val = ((uint64_t)SRC[7] << 56) | ((uint64_t)SRC[6] << 48)     \
+                       | ((uint64_t)SRC[5] << 40) | ((uint64_t)SRC[4] << 32)   \
+                       | ((uint64_t)SRC[3] << 24) | ((uint64_t)SRC[2] << 16)   \
+                       | ((uint64_t)SRC[1] << 8) | (uint64_t)SRC[0];           \
+        *((uint64_t *)dst) = val;                                              \
+    }
 
-void
-read_le_i16(int16_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(1) << 8) | SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_BE_8(_PRIM_TYPE, _SHORT_NAME)                          \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        *dst = SRC[0];                                                         \
+    }
 
-void
-read_le_u32(uint32_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(3) << 24) | (SRC_BYTE(2) << 16) | (SRC_BYTE(1) << 8)
-           | SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_BE_16(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        *dst = (SRC[0] << 8) | SRC[1];                                         \
+    }
 
-void
-read_le_i32(int32_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(3) << 24) | (SRC_BYTE(2) << 16) | (SRC_BYTE(1) << 8)
-           | SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_BE_32(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        *((uint32_t *)dst) =                                                   \
+            (SRC[0] << 24) | (SRC[1] << 16) | (SRC[2] << 8) | SRC[3];          \
+    }
 
-void
-read_le_u64(uint64_t * restrict dst, void const * restrict src)
-{
-    *dst = ((uint64_t)SRC_BYTE(7) << 56) | ((uint64_t)SRC_BYTE(6) << 48)
-           | ((uint64_t)SRC_BYTE(5) << 40) | ((uint64_t)SRC_BYTE(4) << 32)
-           | ((uint64_t)SRC_BYTE(3) << 24) | ((uint64_t)SRC_BYTE(2) << 16)
-           | ((uint64_t)SRC_BYTE(1) << 8) | (uint64_t)SRC_BYTE(0);
-}
+#define GENERATE_UNPACK_BE_64(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
+                                 void const * restrict src)                    \
+    {                                                                          \
+        *((uint64_t *)dst) =                                                   \
+            ((uint64_t)SRC[0] << 56) | ((uint64_t)SRC[1] << 48)                \
+            | ((uint64_t)SRC[2] << 40) | ((uint64_t)SRC[3] << 32)              \
+            | ((uint64_t)SRC[4] << 24) | ((uint64_t)SRC[5] << 16)              \
+            | ((uint64_t)SRC[6] << 8) | (uint64_t)SRC[7];                      \
+    }
 
-void
-read_le_i64(int64_t * restrict dst, void const * restrict src)
-{
-    *dst = ((uint64_t)SRC_BYTE(7) << 56) | ((uint64_t)SRC_BYTE(6) << 48)
-           | ((uint64_t)SRC_BYTE(5) << 40) | ((uint64_t)SRC_BYTE(4) << 32)
-           | ((uint64_t)SRC_BYTE(3) << 24) | ((uint64_t)SRC_BYTE(2) << 16)
-           | ((uint64_t)SRC_BYTE(1) << 8) | (uint64_t)SRC_BYTE(0);
-}
+#define GENERATE_PACK_LE_8(_PRIM_TYPE, _SHORT_NAME)                            \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) { DST[0] = val; }
+#define GENERATE_PACK_LE_16(_PRIM_TYPE, _SHORT_NAME)                           \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
+    {                                                                          \
+        DST[0] = val & 0xff;                                                   \
+        DST[1] = (val >> 8) & 0xff;                                            \
+    }
 
-void
-read_le_f(float * restrict dst, void const * restrict src)
-{
-    uint32_t val = (SRC_BYTE(3) << 24) | (SRC_BYTE(2) << 16)
-                   | (SRC_BYTE(1) << 8) | SRC_BYTE(0);
-    *((uint32_t *)dst) = val;
-}
+#define GENERATE_PACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                           \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
+    {                                                                          \
+        uint32_t val_cast = *((uint32_t *)&val);                               \
+        DST[0]            = val_cast & 0xff;                                   \
+        DST[1]            = (val_cast >> 8) & 0xff;                            \
+        DST[2]            = (val_cast >> 16) & 0xff;                           \
+        DST[3]            = (val_cast >> 24) & 0xff;                           \
+    }
 
-void
-read_le_d(double * restrict dst, void const * restrict src)
-{
-    uint64_t val =
-        ((uint64_t)SRC_BYTE(7) << 56) | ((uint64_t)SRC_BYTE(6) << 48)
-        | ((uint64_t)SRC_BYTE(5) << 40) | ((uint64_t)SRC_BYTE(4) << 32)
-        | ((uint64_t)SRC_BYTE(3) << 24) | ((uint64_t)SRC_BYTE(2) << 16)
-        | ((uint64_t)SRC_BYTE(1) << 8) | (uint64_t)SRC_BYTE(0);
-    *((uint64_t *)dst) = val;
-}
+#define GENERATE_PACK_LE_64(_PRIM_TYPE, _SHORT_NAME)                           \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
+    {                                                                          \
+        uint64_t val_cast = *((uint64_t *)&val);                               \
+        DST[0]            = val_cast & 0xff;                                   \
+        DST[1]            = (val_cast >> 8) & 0xff;                            \
+        DST[2]            = (val_cast >> 16) & 0xff;                           \
+        DST[3]            = (val_cast >> 24) & 0xff;                           \
+        DST[4]            = (val_cast >> 32) & 0xff;                           \
+        DST[5]            = (val_cast >> 40) & 0xff;                           \
+        DST[6]            = (val_cast >> 48) & 0xff;                           \
+        DST[7]            = (val_cast >> 56) & 0xff;                           \
+    }
 
+#define GENERATE_PACK_BE_8(_PRIM_TYPE, _SHORT_NAME)                            \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) { DST[0] = val; }
+#define GENERATE_PACK_BE_16(_PRIM_TYPE, _SHORT_NAME)                           \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
+    {                                                                          \
+        DST[0] = (val >> 8) & 0xff;                                            \
+        DST[1] = val & 0xff;                                                   \
+    }
 
-void
-read_be_u8(uint8_t * restrict dst, void const * restrict src)
-{
-    *dst = SRC_BYTE(0);
-}
+#define GENERATE_PACK_BE_32(_PRIM_TYPE, _SHORT_NAME)                           \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
+    {                                                                          \
+        uint32_t val_cast = *((uint32_t *)&val);                               \
+        DST[0]            = (val_cast >> 24) & 0xff;                           \
+        DST[1]            = (val_cast >> 16) & 0xff;                           \
+        DST[2]            = (val_cast >> 8) & 0xff;                            \
+        DST[3]            = val_cast & 0xff;                                   \
+    }
 
-void
-read_be_i8(int8_t * restrict dst, void const * restrict src)
-{
-    *dst = SRC_BYTE(0);
-}
+#define GENERATE_PACK_BE_64(_PRIM_TYPE, _SHORT_NAME)                           \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
+    {                                                                          \
+        uint64_t val_cast = *((uint64_t *)&val);                               \
+        DST[0]            = (val_cast >> 56) & 0xff;                           \
+        DST[1]            = (val_cast >> 48) & 0xff;                           \
+        DST[2]            = (val_cast >> 40) & 0xff;                           \
+        DST[3]            = (val_cast >> 32) & 0xff;                           \
+        DST[4]            = (val_cast >> 24) & 0xff;                           \
+        DST[5]            = (val_cast >> 16) & 0xff;                           \
+        DST[6]            = (val_cast >> 8) & 0xff;                            \
+        DST[7]            = val_cast & 0xff;                                   \
+    }
 
-void
-read_be_u16(uint16_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(0) << 8) | SRC_BYTE(1);
-}
+GENERATE_UNPACK_LE_8(uint8_t, u8)
+GENERATE_UNPACK_LE_8(int8_t, i8)
+GENERATE_UNPACK_LE_16(uint16_t, u16)
+GENERATE_UNPACK_LE_16(int16_t, i16)
+GENERATE_UNPACK_LE_32(uint32_t, u32)
+GENERATE_UNPACK_LE_32(int32_t, i32)
+GENERATE_UNPACK_LE_64(uint64_t, u64)
+GENERATE_UNPACK_LE_64(int64_t, i64)
+GENERATE_UNPACK_LE_32(float, f)
+GENERATE_UNPACK_LE_64(double, d)
 
-void
-read_be_i16(int16_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(0) << 8) | SRC_BYTE(1);
-}
+GENERATE_PACK_LE_8(uint8_t, u8)
+GENERATE_PACK_LE_8(int8_t, i8)
+GENERATE_PACK_LE_16(uint16_t, u16)
+GENERATE_PACK_LE_16(int16_t, i16)
+GENERATE_PACK_LE_32(uint32_t, u32)
+GENERATE_PACK_LE_32(int32_t, i32)
+GENERATE_PACK_LE_64(uint64_t, u64)
+GENERATE_PACK_LE_64(int64_t, i64)
+GENERATE_PACK_LE_32(float, f)
+GENERATE_PACK_LE_64(double, d)
 
-void
-read_be_u32(uint32_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(0) << 24) | (SRC_BYTE(1) << 16) | (SRC_BYTE(2) << 8)
-           | SRC_BYTE(3);
-}
+GENERATE_UNPACK_BE_8(uint8_t, u8)
+GENERATE_UNPACK_BE_8(int8_t, i8)
+GENERATE_UNPACK_BE_16(uint16_t, u16)
+GENERATE_UNPACK_BE_16(int16_t, i16)
+GENERATE_UNPACK_BE_32(uint32_t, u32)
+GENERATE_UNPACK_BE_32(int32_t, i32)
+GENERATE_UNPACK_BE_64(uint64_t, u64)
+GENERATE_UNPACK_BE_64(int64_t, i64)
+GENERATE_UNPACK_BE_32(float, f)
+GENERATE_UNPACK_BE_64(double, d)
 
-void
-read_be_i32(int32_t * restrict dst, void const * restrict src)
-{
-    *dst = (SRC_BYTE(0) << 24) | (SRC_BYTE(1) << 16) | (SRC_BYTE(2) << 8)
-           | SRC_BYTE(3);
-}
-
-void
-read_be_u64(uint64_t * restrict dst, void const * restrict src)
-{
-    *dst = ((uint64_t)SRC_BYTE(0) << 56) | ((uint64_t)SRC_BYTE(1) << 48)
-           | ((uint64_t)SRC_BYTE(2) << 40) | ((uint64_t)SRC_BYTE(3) << 32)
-           | ((uint64_t)SRC_BYTE(4) << 24) | ((uint64_t)SRC_BYTE(5) << 16)
-           | ((uint64_t)SRC_BYTE(6) << 8) | (uint64_t)SRC_BYTE(7);
-}
-
-void
-read_be_i64(int64_t * restrict dst, void const * restrict src)
-{
-    *dst = ((uint64_t)SRC_BYTE(0) << 56) | ((uint64_t)SRC_BYTE(1) << 48)
-           | ((uint64_t)SRC_BYTE(2) << 40) | ((uint64_t)SRC_BYTE(3) << 32)
-           | ((uint64_t)SRC_BYTE(4) << 24) | ((uint64_t)SRC_BYTE(5) << 16)
-           | ((uint64_t)SRC_BYTE(6) << 8) | (uint64_t)SRC_BYTE(7);
-}
-
-void
-read_be_f(float * restrict dst, void const * restrict src)
-{
-    uint32_t val = (SRC_BYTE(0) << 24) | (SRC_BYTE(1) << 16)
-                   | (SRC_BYTE(2) << 8) | SRC_BYTE(3);
-    *((uint32_t *)dst) = val;
-}
-
-void
-read_be_d(double * restrict dst, void const * restrict src)
-{
-    uint64_t val =
-        ((uint64_t)SRC_BYTE(0) << 56) | ((uint64_t)SRC_BYTE(1) << 48)
-        | ((uint64_t)SRC_BYTE(2) << 40) | ((uint64_t)SRC_BYTE(3) << 32)
-        | ((uint64_t)SRC_BYTE(4) << 24) | ((uint64_t)SRC_BYTE(5) << 16)
-        | ((uint64_t)SRC_BYTE(6) << 8) | (uint64_t)SRC_BYTE(7);
-    *((uint64_t *)dst) = val;
-}
-
-void
-write_le_u8(void * dst, uint8_t val)
-{
-    DST_BYTE(0) = val;
-}
-
-void
-write_le_i8(void * dst, int8_t val)
-{
-    DST_BYTE(0) = val;
-}
-
-
-void
-write_le_u16(void * dst, uint16_t val)
-{
-    DST_BYTE(0) = val & 0xff;
-    DST_BYTE(1) = (val >> 8) & 0xff;
-}
-
-void
-write_le_i16(void * dst, int16_t val)
-{
-    DST_BYTE(0) = val & 0xff;
-    DST_BYTE(1) = (val >> 8) & 0xff;
-}
-
-void
-write_le_u32(void * dst, uint32_t val)
-{
-    DST_BYTE(0) = val & 0xff;
-    DST_BYTE(1) = (val >> 8) & 0xff;
-    DST_BYTE(2) = (val >> 16) & 0xff;
-    DST_BYTE(3) = (val >> 24) & 0xff;
-}
-
-void
-write_le_i32(void * dst, int32_t val)
-{
-    DST_BYTE(0) = val & 0xff;
-    DST_BYTE(1) = (val >> 8) & 0xff;
-    DST_BYTE(2) = (val >> 16) & 0xff;
-    DST_BYTE(3) = (val >> 24) & 0xff;
-}
-
-void
-write_le_u64(void * dst, uint64_t val)
-{
-    DST_BYTE(0) = val & 0xff;
-    DST_BYTE(1) = (val >> 8) & 0xff;
-    DST_BYTE(2) = (val >> 16) & 0xff;
-    DST_BYTE(3) = (val >> 24) & 0xff;
-    DST_BYTE(4) = (val >> 32) & 0xff;
-    DST_BYTE(5) = (val >> 40) & 0xff;
-    DST_BYTE(6) = (val >> 48) & 0xff;
-    DST_BYTE(7) = (val >> 56) & 0xff;
-}
-
-
-void
-write_le_i64(void * dst, int64_t val)
-{
-    DST_BYTE(0) = val & 0xff;
-    DST_BYTE(1) = (val >> 8) & 0xff;
-    DST_BYTE(2) = (val >> 16) & 0xff;
-    DST_BYTE(3) = (val >> 24) & 0xff;
-    DST_BYTE(4) = (val >> 32) & 0xff;
-    DST_BYTE(5) = (val >> 40) & 0xff;
-    DST_BYTE(6) = (val >> 48) & 0xff;
-    DST_BYTE(7) = (val >> 56) & 0xff;
-}
-
-void
-write_le_f(void * dst, float val)
-{
-    uint32_t val_cast = *((uint32_t *)&val);
-    DST_BYTE(0)       = val_cast & 0xff;
-    DST_BYTE(1)       = (val_cast >> 8) & 0xff;
-    DST_BYTE(2)       = (val_cast >> 16) & 0xff;
-    DST_BYTE(3)       = (val_cast >> 24) & 0xff;
-}
-
-void
-write_le_d(void * dst, double val)
-{
-    uint64_t val_cast = *((uint64_t *)&val);
-    DST_BYTE(0)       = val_cast & 0xff;
-    DST_BYTE(1)       = (val_cast >> 8) & 0xff;
-    DST_BYTE(2)       = (val_cast >> 16) & 0xff;
-    DST_BYTE(3)       = (val_cast >> 24) & 0xff;
-    DST_BYTE(4)       = (val_cast >> 32) & 0xff;
-    DST_BYTE(5)       = (val_cast >> 40) & 0xff;
-    DST_BYTE(6)       = (val_cast >> 48) & 0xff;
-    DST_BYTE(7)       = (val_cast >> 56) & 0xff;
-}
-
-void
-write_be_u8(void * dst, uint8_t val)
-{
-    DST_BYTE(0) = val;
-}
-
-void
-write_be_i8(void * dst, int8_t val)
-{
-    DST_BYTE(0) = val;
-}
-
-void
-write_be_u16(void * dst, uint16_t val)
-{
-    DST_BYTE(0) = (val >> 8) & 0xff;
-    DST_BYTE(1) = val & 0xff;
-}
-
-void
-write_be_i16(void * dst, int16_t val)
-{
-    DST_BYTE(0) = (val >> 8) & 0xff;
-    DST_BYTE(1) = val & 0xff;
-}
-
-void
-write_be_u32(void * dst, uint32_t val)
-{
-    DST_BYTE(0) = (val >> 24) & 0xff;
-    DST_BYTE(1) = (val >> 16) & 0xff;
-    DST_BYTE(2) = (val >> 8) & 0xff;
-    DST_BYTE(3) = val & 0xff;
-}
-
-void
-write_be_i32(void * dst, int32_t val)
-{
-    DST_BYTE(0) = (val >> 24) & 0xff;
-    DST_BYTE(1) = (val >> 16) & 0xff;
-    DST_BYTE(2) = (val >> 8) & 0xff;
-    DST_BYTE(3) = val & 0xff;
-}
-
-void
-write_be_u64(void * dst, uint64_t val)
-{
-    DST_BYTE(0) = (val >> 56) & 0xff;
-    DST_BYTE(1) = (val >> 48) & 0xff;
-    DST_BYTE(2) = (val >> 40) & 0xff;
-    DST_BYTE(3) = (val >> 32) & 0xff;
-    DST_BYTE(4) = (val >> 24) & 0xff;
-    DST_BYTE(5) = (val >> 16) & 0xff;
-    DST_BYTE(6) = (val >> 8) & 0xff;
-    DST_BYTE(7) = val & 0xff;
-}
-
-
-void
-write_be_i64(void * dst, int64_t val)
-{
-    DST_BYTE(0) = (val >> 56) & 0xff;
-    DST_BYTE(1) = (val >> 48) & 0xff;
-    DST_BYTE(2) = (val >> 40) & 0xff;
-    DST_BYTE(3) = (val >> 32) & 0xff;
-    DST_BYTE(4) = (val >> 24) & 0xff;
-    DST_BYTE(5) = (val >> 16) & 0xff;
-    DST_BYTE(6) = (val >> 8) & 0xff;
-    DST_BYTE(7) = val & 0xff;
-}
-
-void
-write_be_f(void * dst, float val)
-{
-    uint32_t val_cast = *((uint32_t *)&val);
-    DST_BYTE(0)       = (val_cast >> 24) & 0xff;
-    DST_BYTE(1)       = (val_cast >> 16) & 0xff;
-    DST_BYTE(2)       = (val_cast >> 8) & 0xff;
-    DST_BYTE(3)       = val_cast & 0xff;
-}
-
-void
-write_be_d(void * dst, double val)
-{
-    uint64_t val_cast = *((uint64_t *)&val);
-    DST_BYTE(0)       = (val_cast >> 56) & 0xff;
-    DST_BYTE(1)       = (val_cast >> 48) & 0xff;
-    DST_BYTE(2)       = (val_cast >> 40) & 0xff;
-    DST_BYTE(3)       = (val_cast >> 32) & 0xff;
-    DST_BYTE(4)       = (val_cast >> 24) & 0xff;
-    DST_BYTE(5)       = (val_cast >> 16) & 0xff;
-    DST_BYTE(6)       = (val_cast >> 8) & 0xff;
-    DST_BYTE(7)       = val_cast & 0xff;
-}
+GENERATE_PACK_BE_8(uint8_t, u8)
+GENERATE_PACK_BE_8(int8_t, i8)
+GENERATE_PACK_BE_16(uint16_t, u16)
+GENERATE_PACK_BE_16(int16_t, i16)
+GENERATE_PACK_BE_32(uint32_t, u32)
+GENERATE_PACK_BE_32(int32_t, i32)
+GENERATE_PACK_BE_64(uint64_t, u64)
+GENERATE_PACK_BE_64(int64_t, i64)
+GENERATE_PACK_BE_32(float, f)
+GENERATE_PACK_BE_64(double, d)
