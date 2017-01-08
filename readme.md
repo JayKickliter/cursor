@@ -7,7 +7,39 @@ A simple iterator for packing/unpacking primitive c types to/from a provided buf
 
 ## Example
 
-See [simple.c](examples/simple.c)
+```c
+    /* A buffer to store packed data */
+    uint8_t buf[6];
+
+    /* Construct a new cursor with the buffer we just defined */
+    struct cursor csr = cursor_new(buf, sizeof(buf));
+
+    uint16_t written_u16 = 0x0123;
+    uint32_t written_u32 = 0x456789AB;
+
+    /* Write written_u16 to buf little-endian */
+    cursor_pack_le(&csr, written_u16);
+
+    /* Write written_u32 to buf big-endian */
+    cursor_pack_be(&csr, written_u32);
+
+    /* Reset csr */
+    csr = cursor_new(buf, sizeof(buf));
+
+    uint16_t read_u16 = 0;
+    uint32_t read_u32 = 0;
+
+    /* Read a packed little-endian uint16_t out of buf */
+    cursor_unpack_le(&csr, &read_u16);
+
+    /* Read a packed big-endian uint32_t out of buf */
+    cursor_unpack_be(&csr, &read_u32);
+
+    assert(read_u16 == written_u16);
+    assert(read_u32 == written_u32);
+```
+
+See the full [example](examples/simple.c).
 
 ## Prerequisites
 
