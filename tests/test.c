@@ -39,8 +39,6 @@ enum instruction_type
 };
 #define IT_VARIANT_CNT (it_d + 1)
 
-/* Include here so it does not interfere with the above assert */
-
 /* A single 'instruction' in randmonized multi-part serialize/deserialize test
  * plan
  */
@@ -59,6 +57,11 @@ struct instruction
         float    f;
         double   d;
     } val;
+    enum
+    {
+        big,
+        little,
+    } endianness;
     size_t val_size;
 };
 
@@ -124,6 +127,8 @@ random_instruction()
         fprintf(stderr, "Invalid instruction variant tag\n");
         assert(0);
     }
+    /* Pick a random endianness */
+    inst.endianness = rand() % 2;
     return inst;
 }
 
@@ -151,7 +156,7 @@ random_plan(struct instruction * is, size_t nis)
 }
 
 enum cursor_res
-cursor_pack_instr(struct cursor * csr, struct instruction const * instr)
+cursor_pack_instr_le(struct cursor * csr, struct instruction const * instr)
 {
     enum cursor_res res;
     switch (instr->it)
@@ -185,6 +190,62 @@ cursor_pack_instr(struct cursor * csr, struct instruction const * instr)
         break;
     case it_d:
         res = cursor_pack_le(csr, instr->val.d);
+        break;
+    }
+    return res;
+}
+
+enum cursor_res
+cursor_pack_instr_be(struct cursor * csr, struct instruction const * instr)
+{
+    enum cursor_res res;
+    switch (instr->it)
+    {
+    case it_u8:
+        res = cursor_pack_be(csr, instr->val.u8);
+        break;
+    case it_i8:
+        res = cursor_pack_be(csr, instr->val.i8);
+        break;
+    case it_u16:
+        res = cursor_pack_be(csr, instr->val.u16);
+        break;
+    case it_i16:
+        res = cursor_pack_be(csr, instr->val.i16);
+        break;
+    case it_u32:
+        res = cursor_pack_be(csr, instr->val.u32);
+        break;
+    case it_i32:
+        res = cursor_pack_be(csr, instr->val.i32);
+        break;
+    case it_u64:
+        res = cursor_pack_be(csr, instr->val.u64);
+        break;
+    case it_i64:
+        res = cursor_pack_be(csr, instr->val.i64);
+        break;
+    case it_f:
+        res = cursor_pack_be(csr, instr->val.f);
+        break;
+    case it_d:
+        res = cursor_pack_be(csr, instr->val.d);
+        break;
+    }
+    return res;
+}
+
+enum cursor_res
+cursor_pack_instr(struct cursor * csr, struct instruction const * instr)
+{
+    enum cursor_res res;
+    switch (instr->endianness)
+    {
+    case big:
+        res = cursor_pack_instr_be(csr, instr);
+        break;
+    case little:
+        res = cursor_pack_instr_le(csr, instr);
         break;
     }
     return res;
@@ -277,6 +338,109 @@ cursor_unpack_le_and_compare_to_instr(struct cursor *            csr,
     PASS();
 }
 
+TEST
+cursor_unpack_be_and_compare_to_instr(struct cursor *            csr,
+                                      struct instruction const * instr)
+{
+    char err_msg[64];
+    snprintf(err_msg,
+             sizeof(err_msg),
+             "Unpack value does not match at position %zd",
+             csr->pos);
+    enum cursor_res res;
+    switch (instr->it)
+    {
+    case it_u8:
+    {
+        uint8_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u8, val, "%" PRIu8);
+    }
+    break;
+    case it_i8:
+    {
+        int8_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i8, val, "%" PRId8);
+        break;
+    }
+    case it_u16:
+    {
+        uint16_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u16, val, "%" PRId16);
+    }
+    break;
+    case it_i16:
+    {
+        int16_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i16, val, "%" PRId16);
+    }
+    break;
+    case it_u32:
+    {
+        uint32_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u32, val, "%" PRIu32);
+    }
+    break;
+    case it_i32:
+    {
+        int32_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMT(instr->val.i32, val, "%" PRId32);
+    }
+    break;
+    case it_u64:
+    {
+        uint64_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.u64, val, "%" PRIu64);
+    }
+    break;
+    case it_i64:
+    {
+        int64_t val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.i64, val, "%" PRId64);
+    }
+    break;
+    case it_f:
+    {
+        float val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.f, val, "%f");
+    }
+    break;
+    case it_d:
+    {
+        double val;
+        res = cursor_unpack_be(csr, &val);
+        ASSERT_EQ_FMTm(err_msg, instr->val.d, val, "%f");
+    }
+    break;
+    }
+    ASSERT_EQ(cursor_res_ok, res);
+    PASS();
+}
+
+TEST
+cursor_unpack_and_compare_to_instr(struct cursor *            csr,
+                                   struct instruction const * instr)
+{
+    TEST res;
+    switch (instr->endianness)
+    {
+    case little:
+        res = cursor_unpack_le_and_compare_to_instr(csr, instr);
+        break;
+    case big:
+        res = cursor_unpack_be_and_compare_to_instr(csr, instr);
+        break;
+    }
+    return res;
+}
 
 TEST
 generic_pack_unpack_le_u8_should_match(void)
@@ -671,7 +835,7 @@ struct instruction is[TEST_PLAN_SIZE];
 uint8_t            test_buf[TEST_PLAN_SIZE * sizeof(uint64_t)];
 
 TEST
-roundtrip_le_plan_shoud_match()
+roundtrip_plan_shoud_match()
 {
     /* Make a unpack/pack plan */
     struct plan plan = random_plan(is, TEST_PLAN_SIZE);
@@ -697,7 +861,7 @@ roundtrip_le_plan_shoud_match()
     for (size_t i = 0; i < plan.nis; i++)
     {
         struct instruction const * instr = &plan.is[i];
-        GREATEST_CHECK_CALL(cursor_unpack_le_and_compare_to_instr(&csr, instr));
+        GREATEST_CHECK_CALL(cursor_unpack_and_compare_to_instr(&csr, instr));
     }
     PASS();
 }
@@ -714,7 +878,7 @@ SUITE(generic_mixed_endian)
     RUN_TEST(generic_mixed_endian_d_should_not_match);
 }
 
-SUITE(plan) { RUN_TEST(roundtrip_le_plan_shoud_match); }
+SUITE(plan) { RUN_TEST(roundtrip_plan_shoud_match); }
 GREATEST_MAIN_DEFS();
 
 int
