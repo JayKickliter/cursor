@@ -22,7 +22,6 @@ random_unique()
         val[i] = initial++;
     }
     return *((uint64_t *)val);
-    return 0;
 }
 
 enum instruction_type
@@ -64,7 +63,7 @@ struct instruction
 };
 
 struct instruction
-instruction_random()
+random_instruction()
 {
     struct instruction inst;
     /* generate a random tag */
@@ -136,12 +135,12 @@ struct plan
 };
 
 struct plan
-plan_random(struct instruction * is, size_t nis)
+random_plan(struct instruction * is, size_t nis)
 {
     size_t req_buf_size = 0;
     for (size_t i = 0; i < nis; i++)
     {
-        is[i] = instruction_random();
+        is[i] = random_instruction();
         req_buf_size += is[i].val_size;
     }
 
@@ -675,7 +674,7 @@ TEST
 roundtrip_le_plan_shoud_match()
 {
     /* Make a unpack/pack plan */
-    struct plan plan = plan_random(is, TEST_PLAN_SIZE);
+    struct plan plan = random_plan(is, TEST_PLAN_SIZE);
 
     /* Create a cursor object which will manage writing into the buffer */
     struct cursor csr = cursor_new(test_buf, plan.req_buf_size);
