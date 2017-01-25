@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void
 unpack_le_u8(uint8_t * restrict dst, void const * restrict src);
@@ -192,5 +195,9 @@ pack_be_d(void * dst, double val);
              float:    pack_be_f,                                              \
              double:   pack_be_d                                               \
              )(_DST, _VAL)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PACKING_H */

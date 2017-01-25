@@ -20,6 +20,9 @@ enum cursor_res
     cursor_res_err_buf_exhausted,
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * Creates and returns a new cursor object
@@ -204,5 +207,8 @@ cursor_pack_be_d(struct cursor * csr, double val);
              double:   cursor_pack_be_d                                        \
              )(_CSR, _DST)
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CURSOR_H */
