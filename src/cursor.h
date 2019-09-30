@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* A context for [de]serializing data from a buffer */
 struct cursor
 {
@@ -19,10 +23,6 @@ enum cursor_res
     /* No more bytes left in the buffer */
     cursor_res_err_buf_exhausted,
 };
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * Creates and returns a new cursor object
