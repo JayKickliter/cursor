@@ -4,32 +4,23 @@
 #define DST ((uint8_t *)dst)
 
 #define GENERATE_UNPACK_LE_8(_PRIM_TYPE, _SHORT_NAME)                          \
-    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *dst = SRC[0];                                                         \
     }
 
 #define GENERATE_UNPACK_LE_16(_PRIM_TYPE, _SHORT_NAME)                         \
-    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *dst = (SRC[1] << 8) | SRC[0];                                         \
     }
 
-#define GENERATE_UNPACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                         \
-    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
-        uint32_t val =                                                         \
-            (SRC[3] << 24) | (SRC[2] << 16) | (SRC[1] << 8) | SRC[0];          \
-        *((uint32_t *)dst) = val;                                              \
+#define GENERATE_UNPACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                           \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {           \
+        uint32_t val = (SRC[3] << 24) | (SRC[2] << 16) | (SRC[1] << 8) | SRC[0]; \
+        *((uint32_t *)dst) = val;                                                \
     }
 
 #define GENERATE_UNPACK_LE_64(_PRIM_TYPE, _SHORT_NAME)                         \
-    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         uint64_t val = ((uint64_t)SRC[7] << 56) | ((uint64_t)SRC[6] << 48)     \
                        | ((uint64_t)SRC[5] << 40) | ((uint64_t)SRC[4] << 32)   \
                        | ((uint64_t)SRC[3] << 24) | ((uint64_t)SRC[2] << 16)   \
@@ -38,31 +29,23 @@
     }
 
 #define GENERATE_UNPACK_BE_8(_PRIM_TYPE, _SHORT_NAME)                          \
-    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *dst = SRC[0];                                                         \
     }
 
 #define GENERATE_UNPACK_BE_16(_PRIM_TYPE, _SHORT_NAME)                         \
-    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *dst = (SRC[0] << 8) | SRC[1];                                         \
     }
 
 #define GENERATE_UNPACK_BE_32(_PRIM_TYPE, _SHORT_NAME)                         \
-    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *((uint32_t *)dst) =                                                   \
             (SRC[0] << 24) | (SRC[1] << 16) | (SRC[2] << 8) | SRC[3];          \
     }
 
 #define GENERATE_UNPACK_BE_64(_PRIM_TYPE, _SHORT_NAME)                         \
-    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * restrict dst,                    \
-                                 void const * restrict src)                    \
-    {                                                                          \
+    void unpack_be_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *((uint64_t *)dst) =                                                   \
             ((uint64_t)SRC[0] << 56) | ((uint64_t)SRC[1] << 48)                \
             | ((uint64_t)SRC[2] << 40) | ((uint64_t)SRC[3] << 32)              \
@@ -71,17 +54,17 @@
     }
 
 #define GENERATE_PACK_LE_8(_PRIM_TYPE, _SHORT_NAME)                            \
-    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) { DST[0] = val; }
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
+        DST[0] = val;                                                          \
+    }
 #define GENERATE_PACK_LE_16(_PRIM_TYPE, _SHORT_NAME)                           \
-    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
-    {                                                                          \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
         DST[0] = val & 0xff;                                                   \
         DST[1] = (val >> 8) & 0xff;                                            \
     }
 
 #define GENERATE_PACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                           \
-    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
-    {                                                                          \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
         uint32_t val_cast = *((uint32_t *)&val);                               \
         DST[0]            = val_cast & 0xff;                                   \
         DST[1]            = (val_cast >> 8) & 0xff;                            \
@@ -90,8 +73,7 @@
     }
 
 #define GENERATE_PACK_LE_64(_PRIM_TYPE, _SHORT_NAME)                           \
-    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
-    {                                                                          \
+    void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
         uint64_t val_cast = *((uint64_t *)&val);                               \
         DST[0]            = val_cast & 0xff;                                   \
         DST[1]            = (val_cast >> 8) & 0xff;                            \
@@ -104,17 +86,17 @@
     }
 
 #define GENERATE_PACK_BE_8(_PRIM_TYPE, _SHORT_NAME)                            \
-    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) { DST[0] = val; }
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
+        DST[0] = val;                                                          \
+    }
 #define GENERATE_PACK_BE_16(_PRIM_TYPE, _SHORT_NAME)                           \
-    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
-    {                                                                          \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
         DST[0] = (val >> 8) & 0xff;                                            \
         DST[1] = val & 0xff;                                                   \
     }
 
 #define GENERATE_PACK_BE_32(_PRIM_TYPE, _SHORT_NAME)                           \
-    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
-    {                                                                          \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
         uint32_t val_cast = *((uint32_t *)&val);                               \
         DST[0]            = (val_cast >> 24) & 0xff;                           \
         DST[1]            = (val_cast >> 16) & 0xff;                           \
@@ -123,8 +105,7 @@
     }
 
 #define GENERATE_PACK_BE_64(_PRIM_TYPE, _SHORT_NAME)                           \
-    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val)                     \
-    {                                                                          \
+    void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
         uint64_t val_cast = *((uint64_t *)&val);                               \
         DST[0]            = (val_cast >> 56) & 0xff;                           \
         DST[1]            = (val_cast >> 48) & 0xff;                           \
