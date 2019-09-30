@@ -1,7 +1,7 @@
-#include "cursor.h"
 #include "greatest.h"
-#include "packing.h"
 #include <assert.h>
+#include <cursor/cursor.h>
+#include <cursor/packing.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>

@@ -1,5 +1,5 @@
-#include "cursor.h"
 #include <assert.h>
+#include <cursor/cursor.h>
 #include <stdint.h>
 #include <stdlib.h>
 

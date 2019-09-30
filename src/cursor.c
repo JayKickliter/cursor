@@ -1,6 +1,6 @@
-#include "cursor.h"
-#include "packing.h"
 #include <assert.h>
+#include <cursor/cursor.h>
+#include <cursor/packing.h>
 
 struct cursor
 cursor_new(void * buf, size_t buflen) {

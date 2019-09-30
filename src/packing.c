@@ -1,4 +1,4 @@
-#include "packing.h"
+#include <cursor/packing.h>
 
 #define SRC ((uint8_t *)src)
 #define DST ((uint8_t *)dst)
