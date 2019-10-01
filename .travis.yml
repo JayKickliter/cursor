@@ -25,7 +25,10 @@ install:
   - pip install --user urllib3[secure]
   - pip install --user cpp-coveralls
 
-script: make test
+script:
+  - cmake .
+  - make
+  - make test
 
 after_success:
   - test "${COVERAGE}" == 'ON' && coveralls --gcov-options '\-lp' --gcov 'gcov-4.9'
