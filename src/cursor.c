@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <cursor/cursor.h>
 #include <cursor/packing.h>
+#include <string.h>
 
 struct cursor
 cursor_new(void * buf, size_t buflen) {
@@ -66,3 +67,13 @@ GENERATE(uint64_t, u64)
 GENERATE(int64_t, i64)
 GENERATE(float, f)
 GENERATE(double, d)
+
+enum cursor_res
+cursor_take(struct cursor * csr, size_t n, uint8_t * dst) {
+    if (csr->pos + n > csr->len) {
+        return cursor_res_err_buf_exhausted;
+    }
+    memmove(dst, csr->buf + csr->pos, n);
+    csr->pos += n;
+    return cursor_res_ok;
+}
