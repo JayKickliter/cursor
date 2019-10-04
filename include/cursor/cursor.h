@@ -28,8 +28,14 @@ enum cursor_res {
 struct cursor
 cursor_new(void * buf, size_t buflen);
 
+size_t
+cursor_remaining(struct cursor const * csr);
+
 enum cursor_res
 cursor_take(struct cursor * csr, size_t n, uint8_t * dst);
+
+size_t
+cursor_take_remaining(struct cursor * csr, uint8_t * dst);
 
 enum cursor_res
 cursor_unpack_le_u8(struct cursor * csr, uint8_t * dst);
