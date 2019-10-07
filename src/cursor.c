@@ -91,3 +91,13 @@ cursor_take_remaining(struct cursor * csr, uint8_t * dst) {
     assert(0 == cursor_remaining(csr));
     return remaining;
 }
+
+enum cursor_res
+cursor_put(struct cursor * csr, void const * src, size_t src_len) {
+    if (cursor_remaining(csr) < src_len) {
+        return cursor_res_err_buf_exhausted;
+    }
+    memcpy(&csr->buf[csr->pos], src, src_len);
+    csr->pos += src_len;
+    return cursor_res_ok;
+}

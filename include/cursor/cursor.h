@@ -38,6 +38,9 @@ size_t
 cursor_take_remaining(struct cursor * csr, uint8_t * dst);
 
 enum cursor_res
+cursor_put(struct cursor * csr, void const * src, size_t src_len);
+
+enum cursor_res
 cursor_unpack_le_u8(struct cursor * csr, uint8_t * dst);
 
 enum cursor_res
