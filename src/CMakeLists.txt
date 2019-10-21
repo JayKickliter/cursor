@@ -12,4 +12,3 @@ install(TARGETS cursor
   DESTINATION lib
 )
 
-add_subdirectory(include)
