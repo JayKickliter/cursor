@@ -11,3 +11,4 @@ target_include_directories(cursor PUBLIC
 install(TARGETS cursor
   DESTINATION lib
 )
+
