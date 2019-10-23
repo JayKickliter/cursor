@@ -19,6 +19,14 @@ Bug fixes:
   A bugfix.
 -->
 
+0.8.1 (2019-10-23)
+==================
+Bug fixes:
+
+* [#7](https://github.com/JayKickliter/cursor/pull/7)
+  Cast left-shift expressions when a loss of precision is possible.
+
+
 0.8.0 (2019-10-22)
 ==================
 Initial release. Version number `0.8.0` has been arbitrarily chosen to
