@@ -13,10 +13,11 @@
         *dst = (SRC[1] << 8) | SRC[0];                                         \
     }
 
-#define GENERATE_UNPACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                           \
-    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {           \
-        uint32_t val = (SRC[3] << 24) | (SRC[2] << 16) | (SRC[1] << 8) | SRC[0]; \
-        *((uint32_t *)dst) = val;                                                \
+#define GENERATE_UNPACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                         \
+    void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
+        uint32_t val = ((uint32_t)SRC[3] << 24) | ((uint32_t)SRC[2] << 16)     \
+                       | ((uint32_t)SRC[1] << 8) | SRC[0];                     \
+        *((uint32_t *)dst) = val;                                              \
     }
 
 #define GENERATE_UNPACK_LE_64(_PRIM_TYPE, _SHORT_NAME)                         \
@@ -40,8 +41,9 @@
 
 #define GENERATE_UNPACK_BE_32(_PRIM_TYPE, _SHORT_NAME)                         \
     void unpack_be_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
-        *((uint32_t *)dst) =                                                   \
-            (SRC[0] << 24) | (SRC[1] << 16) | (SRC[2] << 8) | SRC[3];          \
+        *((uint32_t *)dst) = ((uint32_t)SRC[0] << 24)                          \
+                             | ((uint32_t)SRC[1] << 16)                        \
+                             | ((uint32_t)SRC[2] << 8) | SRC[3];               \
     }
 
 #define GENERATE_UNPACK_BE_64(_PRIM_TYPE, _SHORT_NAME)                         \
