@@ -6,6 +6,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifdef HAVE_ATTRIBUTE_MAY_ALIAS
+typedef uint64_t __attribute__((__may_alias__)) uint64_a;
+#else
+typedef uint64_t uint64_a;
+#endif
+
 static inline float
 random_float() {
     return (float)random() / (float)(RAND_MAX);
@@ -18,7 +24,7 @@ random_unique() {
     for (size_t i = 0; i < sizeof(uint64_t); i++) {
         val[i] = initial++;
     }
-    return *((uint64_t *)val);
+    return *((uint64_a *)val);
 }
 
 enum instruction_type {

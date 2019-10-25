@@ -3,6 +3,14 @@
 #define SRC ((uint8_t *)src)
 #define DST ((uint8_t *)dst)
 
+#ifdef HAVE_ATTRIBUTE_MAY_ALIAS
+typedef uint32_t __attribute__((__may_alias__)) uint32_a;
+typedef uint64_t __attribute__((__may_alias__)) uint64_a;
+#else
+typedef uint32_t uint32_a;
+typedef uint64_t uint64_a;
+#endif
+
 #define GENERATE_UNPACK_LE_8(_PRIM_TYPE, _SHORT_NAME)                          \
     void unpack_le_##_SHORT_NAME(_PRIM_TYPE * dst, void const * src) {         \
         *dst = SRC[0];                                                         \
@@ -67,7 +75,7 @@
 
 #define GENERATE_PACK_LE_32(_PRIM_TYPE, _SHORT_NAME)                           \
     void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
-        uint32_t val_cast = *((uint32_t *)&val);                               \
+        uint32_t val_cast = *((uint32_a *)&val);                               \
         DST[0]            = val_cast & 0xff;                                   \
         DST[1]            = (val_cast >> 8) & 0xff;                            \
         DST[2]            = (val_cast >> 16) & 0xff;                           \
@@ -76,7 +84,7 @@
 
 #define GENERATE_PACK_LE_64(_PRIM_TYPE, _SHORT_NAME)                           \
     void pack_le_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
-        uint64_t val_cast = *((uint64_t *)&val);                               \
+        uint64_t val_cast = *((uint64_a *)&val);                               \
         DST[0]            = val_cast & 0xff;                                   \
         DST[1]            = (val_cast >> 8) & 0xff;                            \
         DST[2]            = (val_cast >> 16) & 0xff;                           \
@@ -99,7 +107,7 @@
 
 #define GENERATE_PACK_BE_32(_PRIM_TYPE, _SHORT_NAME)                           \
     void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
-        uint32_t val_cast = *((uint32_t *)&val);                               \
+        uint32_t val_cast = *((uint32_a *)&val);                               \
         DST[0]            = (val_cast >> 24) & 0xff;                           \
         DST[1]            = (val_cast >> 16) & 0xff;                           \
         DST[2]            = (val_cast >> 8) & 0xff;                            \
@@ -108,7 +116,7 @@
 
 #define GENERATE_PACK_BE_64(_PRIM_TYPE, _SHORT_NAME)                           \
     void pack_be_##_SHORT_NAME(void * dst, _PRIM_TYPE val) {                   \
-        uint64_t val_cast = *((uint64_t *)&val);                               \
+        uint64_t val_cast = *((uint64_a *)&val);                               \
         DST[0]            = (val_cast >> 56) & 0xff;                           \
         DST[1]            = (val_cast >> 48) & 0xff;                           \
         DST[2]            = (val_cast >> 40) & 0xff;                           \
