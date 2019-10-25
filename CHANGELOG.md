@@ -19,6 +19,14 @@ Bug fixes:
   A bugfix.
 -->
 
+0.8.2 (2019-10-25)
+==================
+Bug fixes:
+
+* [#8](https://github.com/JayKickliter/cursor/pull/8)
+  Build without warnings.
+
+
 0.8.1 (2019-10-23)
 ==================
 Bug fixes:
