@@ -6,6 +6,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#ifdef HAVE_ATTRIBUTE_MAY_ALIAS
+typedef uint64_t __attribute__((__may_alias__)) uint64_a;
+#else
+typedef uint64_t uint64_a;
+#endif
+
 static inline float
 random_float() {
     return (float)random() / (float)(RAND_MAX);
@@ -18,7 +24,7 @@ random_unique() {
     for (size_t i = 0; i < sizeof(uint64_t); i++) {
         val[i] = initial++;
     }
-    return *((uint64_t *)val);
+    return *((uint64_a *)val);
 }
 
 enum instruction_type {
@@ -148,7 +154,7 @@ random_plan(struct instruction * is, size_t nis) {
 
 enum cursor_res
 cursor_pack_instr_le(struct cursor * csr, struct instruction const * instr) {
-    enum cursor_res res;
+    enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8:
         res = cursor_pack_le(csr, instr->val.u8);
@@ -186,7 +192,7 @@ cursor_pack_instr_le(struct cursor * csr, struct instruction const * instr) {
 
 enum cursor_res
 cursor_pack_instr_be(struct cursor * csr, struct instruction const * instr) {
-    enum cursor_res res;
+    enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8:
         res = cursor_pack_be(csr, instr->val.u8);
@@ -224,7 +230,7 @@ cursor_pack_instr_be(struct cursor * csr, struct instruction const * instr) {
 
 enum cursor_res
 cursor_pack_instr(struct cursor * csr, struct instruction const * instr) {
-    enum cursor_res res;
+    enum cursor_res res = cursor_res_ok;
     switch (instr->endianness) {
     case big:
         res = cursor_pack_instr_be(csr, instr);
@@ -244,7 +250,7 @@ cursor_unpack_le_and_compare_to_instr(struct cursor *            csr,
              sizeof(err_msg),
              "Unpack value does not match at position %zd",
              csr->pos);
-    enum cursor_res res;
+    enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8: {
         uint8_t val;
@@ -310,7 +316,7 @@ cursor_unpack_be_and_compare_to_instr(struct cursor *            csr,
              sizeof(err_msg),
              "Unpack value does not match at position %zd",
              csr->pos);
-    enum cursor_res res;
+    enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8: {
         uint8_t val;

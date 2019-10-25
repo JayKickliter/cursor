@@ -1,3 +1,5 @@
+#undef NDEBUG
+
 #include <assert.h>
 #include <cursor/cursor.h>
 #include <stdint.h>

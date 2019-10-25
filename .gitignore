@@ -4,4 +4,4 @@ examples/simple
 *.a
 *.gcda*
 *.gcno*
-build
+build*/

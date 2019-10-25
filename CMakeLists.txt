@@ -6,7 +6,17 @@ project(Cursor
   )
 
 include(CTest)
+include(CheckCSourceCompiles)
 
+check_c_source_compiles("
+typedef int __attribute__((__may_alias__)) int_a;
+int main(int argc, char * argv[]) {
+    (void)argc;
+    (void)argv;
+}
+  "
+  HAVE_ATTRIBUTE_MAY_ALIAS
+  )
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

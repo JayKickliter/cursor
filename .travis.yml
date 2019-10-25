@@ -26,8 +26,8 @@ install:
   - pip install --user cpp-coveralls
 
 script:
-  - cmake .
-  - make
+  - cmake -DCMAKE_C_FLAGS='-Wall -Wextra -Werror -coverage' -DCMAKE_BUILD_TYPE=Release .
+  - make -j
   - make test
 
 after_success:

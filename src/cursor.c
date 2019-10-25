@@ -88,6 +88,7 @@ cursor_take_remaining(struct cursor * csr, uint8_t * dst) {
     size_t          remaining = cursor_remaining(csr);
     enum cursor_res res       = cursor_take(csr, remaining, dst);
     assert(cursor_res_ok == res);
+    (void)res;
     assert(0 == cursor_remaining(csr));
     return remaining;
 }
