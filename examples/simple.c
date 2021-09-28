@@ -14,7 +14,7 @@ main(int argc, char * argv[]) {
     uint8_t buf[42];
 
     /* Construct a new cursor with the buffer we just defined */
-    struct cursor csr = cursor_new(buf, sizeof(buf));
+    struct cursor_wtr wtr = cursor_wtr_new(buf, sizeof(buf));
 
     /* Primitives we'll pack into the buffer */
     uint8_t  packed_u8  = rand();
@@ -33,22 +33,22 @@ main(int argc, char * argv[]) {
      * `cursor_pack_be` is actually macro using c11's generic selector feature.
      * It dispatches to the correct cursor function call based on the primitive
      * type */
-    assert(cursor_pack_be(&csr, packed_u8) == cursor_res_ok);
-    assert(cursor_pack_le(&csr, packed_i8) == cursor_res_ok);
-    assert(cursor_pack_be(&csr, packed_u16) == cursor_res_ok);
-    assert(cursor_pack_le(&csr, packed_i16) == cursor_res_ok);
-    assert(cursor_pack_be(&csr, packed_u32) == cursor_res_ok);
-    assert(cursor_pack_le(&csr, packed_i32) == cursor_res_ok);
-    assert(cursor_pack_be(&csr, packed_u64) == cursor_res_ok);
-    assert(cursor_pack_le(&csr, packed_i64) == cursor_res_ok);
-    assert(cursor_pack_be(&csr, packed_f) == cursor_res_ok);
-    assert(cursor_pack_le(&csr, packed_d) == cursor_res_ok);
+    assert(cursor_pack_be(&wtr, packed_u8) == cursor_res_ok);
+    assert(cursor_pack_le(&wtr, packed_i8) == cursor_res_ok);
+    assert(cursor_pack_be(&wtr, packed_u16) == cursor_res_ok);
+    assert(cursor_pack_le(&wtr, packed_i16) == cursor_res_ok);
+    assert(cursor_pack_be(&wtr, packed_u32) == cursor_res_ok);
+    assert(cursor_pack_le(&wtr, packed_i32) == cursor_res_ok);
+    assert(cursor_pack_be(&wtr, packed_u64) == cursor_res_ok);
+    assert(cursor_pack_le(&wtr, packed_i64) == cursor_res_ok);
+    assert(cursor_pack_be(&wtr, packed_f) == cursor_res_ok);
+    assert(cursor_pack_le(&wtr, packed_d) == cursor_res_ok);
 
     /* Our buffer was sized to have no leftover space.
      * Let's verify that attempting another pack operation returns an error.
      * Note that we're explicitly calling `cursor_pack_le_u8` here, and not
      * using the type-generic `cursor_pack_le` macro */
-    assert(cursor_pack_le_u16(&csr, rand()) == cursor_res_err_buf_exhausted);
+    assert(cursor_pack_le_u16(&wtr, rand()) == cursor_res_err_buf_exhausted);
 
     /* We'll unpack our packed variables into these variables */
     uint8_t  unpacked_u8;
@@ -64,19 +64,19 @@ main(int argc, char * argv[]) {
 
     /* Reset the cursor.
      * `cursor_new` does not allocate so this is safe */
-    csr = cursor_new(buf, sizeof(buf));
+    struct cursor_rdr rdr = cursor_rdr_new(buf, sizeof(buf));
 
     /* Now unpack out of the buffer we packed into earlier  */
-    assert(cursor_unpack_be(&csr, &unpacked_u8) == cursor_res_ok);
-    assert(cursor_unpack_le(&csr, &unpacked_i8) == cursor_res_ok);
-    assert(cursor_unpack_be(&csr, &unpacked_u16) == cursor_res_ok);
-    assert(cursor_unpack_le(&csr, &unpacked_i16) == cursor_res_ok);
-    assert(cursor_unpack_be(&csr, &unpacked_u32) == cursor_res_ok);
-    assert(cursor_unpack_le(&csr, &unpacked_i32) == cursor_res_ok);
-    assert(cursor_unpack_be(&csr, &unpacked_u64) == cursor_res_ok);
-    assert(cursor_unpack_le(&csr, &unpacked_i64) == cursor_res_ok);
-    assert(cursor_unpack_be(&csr, &unpacked_f) == cursor_res_ok);
-    assert(cursor_unpack_le(&csr, &unpacked_d) == cursor_res_ok);
+    assert(cursor_unpack_be(&rdr, &unpacked_u8) == cursor_res_ok);
+    assert(cursor_unpack_le(&rdr, &unpacked_i8) == cursor_res_ok);
+    assert(cursor_unpack_be(&rdr, &unpacked_u16) == cursor_res_ok);
+    assert(cursor_unpack_le(&rdr, &unpacked_i16) == cursor_res_ok);
+    assert(cursor_unpack_be(&rdr, &unpacked_u32) == cursor_res_ok);
+    assert(cursor_unpack_le(&rdr, &unpacked_i32) == cursor_res_ok);
+    assert(cursor_unpack_be(&rdr, &unpacked_u64) == cursor_res_ok);
+    assert(cursor_unpack_le(&rdr, &unpacked_i64) == cursor_res_ok);
+    assert(cursor_unpack_be(&rdr, &unpacked_f) == cursor_res_ok);
+    assert(cursor_unpack_le(&rdr, &unpacked_d) == cursor_res_ok);
 
     /* Check the packed and unpacked variables for equality */
     assert(packed_u8 == unpacked_u8);

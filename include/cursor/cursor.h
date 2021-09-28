@@ -8,11 +8,21 @@
 extern "C" {
 #endif
 
-/* A context for [de]serializing data from a buffer */
-struct cursor {
-    uint8_t * buf;
-    size_t    len;
-    size_t    pos;
+/* Common state for both reader and writer cursors. */
+struct cursor_state_ {
+    size_t len;
+    size_t pos;
+};
+/* A context for serializing data to a buffer */
+struct cursor_wtr {
+    struct cursor_state_ state;
+    uint8_t *            buf;
+};
+
+/* A context for deserializing data from a buffer */
+struct cursor_rdr {
+    struct cursor_state_ state;
+    uint8_t const *      buf;
 };
 
 enum cursor_res {
@@ -23,52 +33,58 @@ enum cursor_res {
 };
 
 /**
- * Creates and returns a new cursor object
+ * Creates and returns a writer cursor object
  */
-struct cursor
-cursor_new(void * buf, size_t buflen);
+struct cursor_wtr
+cursor_wtr_new(uint8_t * buf, size_t buflen);
+
+/**
+ * Creates and returns a writer cursor object
+ */
+struct cursor_rdr
+cursor_rdr_new(uint8_t const * buf, size_t buflen);
 
 size_t
-cursor_remaining(struct cursor const * csr);
+cursor_remaining(void const * csr);
 
 enum cursor_res
-cursor_take(struct cursor * csr, size_t n, uint8_t * dst);
+cursor_take(struct cursor_rdr * csr, size_t n, uint8_t * dst);
 
 size_t
-cursor_take_remaining(struct cursor * csr, uint8_t * dst);
+cursor_take_remaining(struct cursor_rdr * csr, uint8_t * dst);
 
 enum cursor_res
-cursor_put(struct cursor * csr, void const * src, size_t src_len);
+cursor_put(struct cursor_wtr * csr, void const * src, size_t src_len);
 
 enum cursor_res
-cursor_unpack_le_u8(struct cursor * csr, uint8_t * dst);
+cursor_unpack_le_u8(struct cursor_rdr * csr, uint8_t * dst);
 
 enum cursor_res
-cursor_unpack_le_i8(struct cursor * csr, int8_t * dst);
+cursor_unpack_le_i8(struct cursor_rdr * csr, int8_t * dst);
 
 enum cursor_res
-cursor_unpack_le_u16(struct cursor * csr, uint16_t * dst);
+cursor_unpack_le_u16(struct cursor_rdr * csr, uint16_t * dst);
 
 enum cursor_res
-cursor_unpack_le_i16(struct cursor * csr, int16_t * dst);
+cursor_unpack_le_i16(struct cursor_rdr * csr, int16_t * dst);
 
 enum cursor_res
-cursor_unpack_le_u32(struct cursor * csr, uint32_t * dst);
+cursor_unpack_le_u32(struct cursor_rdr * csr, uint32_t * dst);
 
 enum cursor_res
-cursor_unpack_le_i32(struct cursor * csr, int32_t * dst);
+cursor_unpack_le_i32(struct cursor_rdr * csr, int32_t * dst);
 
 enum cursor_res
-cursor_unpack_le_u64(struct cursor * csr, uint64_t * dst);
+cursor_unpack_le_u64(struct cursor_rdr * csr, uint64_t * dst);
 
 enum cursor_res
-cursor_unpack_le_i64(struct cursor * csr, int64_t * dst);
+cursor_unpack_le_i64(struct cursor_rdr * csr, int64_t * dst);
 
 enum cursor_res
-cursor_unpack_le_f(struct cursor * csr, float * dst);
+cursor_unpack_le_f(struct cursor_rdr * csr, float * dst);
 
 enum cursor_res
-cursor_unpack_le_d(struct cursor * csr, double * dst);
+cursor_unpack_le_d(struct cursor_rdr * csr, double * dst);
 
 #define cursor_unpack_le(_CSR, _DST)                                           \
     _Generic((_DST),                                                           \
@@ -85,34 +101,34 @@ cursor_unpack_le_d(struct cursor * csr, double * dst);
              )(_CSR, _DST)
 
 enum cursor_res
-cursor_unpack_be_u8(struct cursor * csr, uint8_t * dst);
+cursor_unpack_be_u8(struct cursor_rdr * csr, uint8_t * dst);
 
 enum cursor_res
-cursor_unpack_be_i8(struct cursor * csr, int8_t * dst);
+cursor_unpack_be_i8(struct cursor_rdr * csr, int8_t * dst);
 
 enum cursor_res
-cursor_unpack_be_u16(struct cursor * csr, uint16_t * dst);
+cursor_unpack_be_u16(struct cursor_rdr * csr, uint16_t * dst);
 
 enum cursor_res
-cursor_unpack_be_i16(struct cursor * csr, int16_t * dst);
+cursor_unpack_be_i16(struct cursor_rdr * csr, int16_t * dst);
 
 enum cursor_res
-cursor_unpack_be_u32(struct cursor * csr, uint32_t * dst);
+cursor_unpack_be_u32(struct cursor_rdr * csr, uint32_t * dst);
 
 enum cursor_res
-cursor_unpack_be_i32(struct cursor * csr, int32_t * dst);
+cursor_unpack_be_i32(struct cursor_rdr * csr, int32_t * dst);
 
 enum cursor_res
-cursor_unpack_be_u64(struct cursor * csr, uint64_t * dst);
+cursor_unpack_be_u64(struct cursor_rdr * csr, uint64_t * dst);
 
 enum cursor_res
-cursor_unpack_be_i64(struct cursor * csr, int64_t * dst);
+cursor_unpack_be_i64(struct cursor_rdr * csr, int64_t * dst);
 
 enum cursor_res
-cursor_unpack_be_f(struct cursor * csr, float * dst);
+cursor_unpack_be_f(struct cursor_rdr * csr, float * dst);
 
 enum cursor_res
-cursor_unpack_be_d(struct cursor * csr, double * dst);
+cursor_unpack_be_d(struct cursor_rdr * csr, double * dst);
 
 #define cursor_unpack_be(_CSR, _DST)                                           \
     _Generic((_DST),                                                           \
@@ -129,34 +145,34 @@ cursor_unpack_be_d(struct cursor * csr, double * dst);
              )(_CSR, _DST)
 
 enum cursor_res
-cursor_pack_le_u8(struct cursor * csr, uint8_t val);
+cursor_pack_le_u8(struct cursor_wtr * csr, uint8_t val);
 
 enum cursor_res
-cursor_pack_le_i8(struct cursor * csr, int8_t val);
+cursor_pack_le_i8(struct cursor_wtr * csr, int8_t val);
 
 enum cursor_res
-cursor_pack_le_u16(struct cursor * csr, uint16_t val);
+cursor_pack_le_u16(struct cursor_wtr * csr, uint16_t val);
 
 enum cursor_res
-cursor_pack_le_i16(struct cursor * csr, int16_t val);
+cursor_pack_le_i16(struct cursor_wtr * csr, int16_t val);
 
 enum cursor_res
-cursor_pack_le_u32(struct cursor * csr, uint32_t val);
+cursor_pack_le_u32(struct cursor_wtr * csr, uint32_t val);
 
 enum cursor_res
-cursor_pack_le_i32(struct cursor * csr, int32_t val);
+cursor_pack_le_i32(struct cursor_wtr * csr, int32_t val);
 
 enum cursor_res
-cursor_pack_le_u64(struct cursor * csr, uint64_t val);
+cursor_pack_le_u64(struct cursor_wtr * csr, uint64_t val);
 
 enum cursor_res
-cursor_pack_le_i64(struct cursor * csr, int64_t val);
+cursor_pack_le_i64(struct cursor_wtr * csr, int64_t val);
 
 enum cursor_res
-cursor_pack_le_f(struct cursor * csr, float val);
+cursor_pack_le_f(struct cursor_wtr * csr, float val);
 
 enum cursor_res
-cursor_pack_le_d(struct cursor * csr, double val);
+cursor_pack_le_d(struct cursor_wtr * csr, double val);
 
 #define cursor_pack_le(_CSR, _DST)                                             \
     _Generic((_DST), uint8_t                                                   \
@@ -172,34 +188,34 @@ cursor_pack_le_d(struct cursor * csr, double val);
              : cursor_pack_le_d)(_CSR, _DST)
 
 enum cursor_res
-cursor_pack_be_u8(struct cursor * csr, uint8_t val);
+cursor_pack_be_u8(struct cursor_wtr * csr, uint8_t val);
 
 enum cursor_res
-cursor_pack_be_i8(struct cursor * csr, int8_t val);
+cursor_pack_be_i8(struct cursor_wtr * csr, int8_t val);
 
 enum cursor_res
-cursor_pack_be_u16(struct cursor * csr, uint16_t val);
+cursor_pack_be_u16(struct cursor_wtr * csr, uint16_t val);
 
 enum cursor_res
-cursor_pack_be_i16(struct cursor * csr, int16_t val);
+cursor_pack_be_i16(struct cursor_wtr * csr, int16_t val);
 
 enum cursor_res
-cursor_pack_be_u32(struct cursor * csr, uint32_t val);
+cursor_pack_be_u32(struct cursor_wtr * csr, uint32_t val);
 
 enum cursor_res
-cursor_pack_be_i32(struct cursor * csr, int32_t val);
+cursor_pack_be_i32(struct cursor_wtr * csr, int32_t val);
 
 enum cursor_res
-cursor_pack_be_u64(struct cursor * csr, uint64_t val);
+cursor_pack_be_u64(struct cursor_wtr * csr, uint64_t val);
 
 enum cursor_res
-cursor_pack_be_i64(struct cursor * csr, int64_t val);
+cursor_pack_be_i64(struct cursor_wtr * csr, int64_t val);
 
 enum cursor_res
-cursor_pack_be_f(struct cursor * csr, float val);
+cursor_pack_be_f(struct cursor_wtr * csr, float val);
 
 enum cursor_res
-cursor_pack_be_d(struct cursor * csr, double val);
+cursor_pack_be_d(struct cursor_wtr * csr, double val);
 
 #define cursor_pack_be(_CSR, _DST)                                             \
     _Generic((_DST), uint8_t                                                   \
