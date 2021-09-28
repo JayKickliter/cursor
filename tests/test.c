@@ -153,7 +153,7 @@ random_plan(struct instruction * is, size_t nis) {
 }
 
 enum cursor_res
-cursor_pack_instr_le(struct cursor * csr, struct instruction const * instr) {
+cursor_pack_instr_le(struct cursor_wtr * csr, struct instruction const * instr) {
     enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8:
@@ -191,7 +191,7 @@ cursor_pack_instr_le(struct cursor * csr, struct instruction const * instr) {
 }
 
 enum cursor_res
-cursor_pack_instr_be(struct cursor * csr, struct instruction const * instr) {
+cursor_pack_instr_be(struct cursor_wtr * csr, struct instruction const * instr) {
     enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8:
@@ -229,7 +229,7 @@ cursor_pack_instr_be(struct cursor * csr, struct instruction const * instr) {
 }
 
 enum cursor_res
-cursor_pack_instr(struct cursor * csr, struct instruction const * instr) {
+cursor_pack_instr(struct cursor_wtr * csr, struct instruction const * instr) {
     enum cursor_res res = cursor_res_ok;
     switch (instr->endianness) {
     case big:
@@ -243,13 +243,13 @@ cursor_pack_instr(struct cursor * csr, struct instruction const * instr) {
 }
 
 TEST
-cursor_unpack_le_and_compare_to_instr(struct cursor *            csr,
+cursor_unpack_le_and_compare_to_instr(struct cursor_rdr *        csr,
                                       struct instruction const * instr) {
     char err_msg[64];
     snprintf(err_msg,
              sizeof(err_msg),
              "Unpack value does not match at position %zd",
-             csr->pos);
+             csr->state.pos);
     enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8: {
@@ -309,13 +309,13 @@ cursor_unpack_le_and_compare_to_instr(struct cursor *            csr,
 }
 
 TEST
-cursor_unpack_be_and_compare_to_instr(struct cursor *            csr,
+cursor_unpack_be_and_compare_to_instr(struct cursor_rdr *        csr,
                                       struct instruction const * instr) {
     char err_msg[64];
     snprintf(err_msg,
              sizeof(err_msg),
              "Unpack value does not match at position %zd",
-             csr->pos);
+             csr->state.pos);
     enum cursor_res res = cursor_res_ok;
     switch (instr->it) {
     case it_u8: {
@@ -375,7 +375,7 @@ cursor_unpack_be_and_compare_to_instr(struct cursor *            csr,
 }
 
 TEST
-cursor_unpack_and_compare_to_instr(struct cursor *            csr,
+cursor_unpack_and_compare_to_instr(struct cursor_rdr *        csr,
                                    struct instruction const * instr) {
     TEST res;
     switch (instr->endianness) {
@@ -757,24 +757,27 @@ roundtrip_plan_shoud_match() {
     struct plan plan = random_plan(is, TEST_PLAN_SIZE);
 
     /* Create a cursor object which will manage writing into the buffer */
-    struct cursor csr = cursor_new(test_buf, plan.req_buf_size);
+    struct cursor_wtr wtr = cursor_wtr_new(test_buf, plan.req_buf_size);
 
     /* Iterate through the plan and encode it's values into the buffer */
     for (size_t i = 0; i < plan.nis; i++) {
-        enum cursor_res res = cursor_pack_instr(&csr, &plan.is[i]);
+        enum cursor_res res = cursor_pack_instr(&wtr, &plan.is[i]);
         ASSERT_EQ_FMTm("cursor_pack_le returned an error", cursor_res_ok, res, "%d");
     }
-    ASSERT_EQ_FMTm("Position and len do not match", csr.pos, csr.len, "%d");
+    ASSERT_EQ_FMTm("Position and len do not match",
+                   wtr.state.pos,
+                   wtr.state.len,
+                   "%d");
 
     /* Create a cursor object which will manage unpacking out of the buffer */
-    csr = cursor_new(test_buf, plan.req_buf_size);
+    struct cursor_rdr rdr = cursor_rdr_new(test_buf, plan.req_buf_size);
 
     /* Iterate through the plan, unpack values out of the csr, and make sure
      * they
      * match the plan's instruction values */
     for (size_t i = 0; i < plan.nis; i++) {
         struct instruction const * instr = &plan.is[i];
-        GREATEST_CHECK_CALL(cursor_unpack_and_compare_to_instr(&csr, instr));
+        GREATEST_CHECK_CALL(cursor_unpack_and_compare_to_instr(&rdr, instr));
     }
     PASS();
 }
