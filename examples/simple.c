@@ -33,16 +33,16 @@ main(int argc, char * argv[]) {
      * `cursor_pack_be` is actually macro using c11's generic selector feature.
      * It dispatches to the correct cursor function call based on the primitive
      * type */
-    assert(cursor_pack_be(&wtr, packed_u8) == cursor_res_ok);
-    assert(cursor_pack_le(&wtr, packed_i8) == cursor_res_ok);
-    assert(cursor_pack_be(&wtr, packed_u16) == cursor_res_ok);
-    assert(cursor_pack_le(&wtr, packed_i16) == cursor_res_ok);
-    assert(cursor_pack_be(&wtr, packed_u32) == cursor_res_ok);
-    assert(cursor_pack_le(&wtr, packed_i32) == cursor_res_ok);
-    assert(cursor_pack_be(&wtr, packed_u64) == cursor_res_ok);
-    assert(cursor_pack_le(&wtr, packed_i64) == cursor_res_ok);
-    assert(cursor_pack_be(&wtr, packed_f) == cursor_res_ok);
-    assert(cursor_pack_le(&wtr, packed_d) == cursor_res_ok);
+    assert(cursor_pack_be_u8(&wtr, packed_u8) == cursor_res_ok);
+    assert(cursor_pack_le_i8(&wtr, packed_i8) == cursor_res_ok);
+    assert(cursor_pack_be_u16(&wtr, packed_u16) == cursor_res_ok);
+    assert(cursor_pack_le_i16(&wtr, packed_i16) == cursor_res_ok);
+    assert(cursor_pack_be_u32(&wtr, packed_u32) == cursor_res_ok);
+    assert(cursor_pack_le_i32(&wtr, packed_i32) == cursor_res_ok);
+    assert(cursor_pack_be_u64(&wtr, packed_u64) == cursor_res_ok);
+    assert(cursor_pack_le_i64(&wtr, packed_i64) == cursor_res_ok);
+    assert(cursor_pack_be_f(&wtr, packed_f) == cursor_res_ok);
+    assert(cursor_pack_le_d(&wtr, packed_d) == cursor_res_ok);
 
     /* Our buffer was sized to have no leftover space.
      * Let's verify that attempting another pack operation returns an error.
@@ -67,16 +67,16 @@ main(int argc, char * argv[]) {
     struct cursor_rdr rdr = cursor_rdr_new(buf, sizeof(buf));
 
     /* Now unpack out of the buffer we packed into earlier  */
-    assert(cursor_unpack_be(&rdr, &unpacked_u8) == cursor_res_ok);
-    assert(cursor_unpack_le(&rdr, &unpacked_i8) == cursor_res_ok);
-    assert(cursor_unpack_be(&rdr, &unpacked_u16) == cursor_res_ok);
-    assert(cursor_unpack_le(&rdr, &unpacked_i16) == cursor_res_ok);
-    assert(cursor_unpack_be(&rdr, &unpacked_u32) == cursor_res_ok);
-    assert(cursor_unpack_le(&rdr, &unpacked_i32) == cursor_res_ok);
-    assert(cursor_unpack_be(&rdr, &unpacked_u64) == cursor_res_ok);
-    assert(cursor_unpack_le(&rdr, &unpacked_i64) == cursor_res_ok);
-    assert(cursor_unpack_be(&rdr, &unpacked_f) == cursor_res_ok);
-    assert(cursor_unpack_le(&rdr, &unpacked_d) == cursor_res_ok);
+    assert(cursor_unpack_be_u8(&rdr, &unpacked_u8) == cursor_res_ok);
+    assert(cursor_unpack_le_i8(&rdr, &unpacked_i8) == cursor_res_ok);
+    assert(cursor_unpack_be_u16(&rdr, &unpacked_u16) == cursor_res_ok);
+    assert(cursor_unpack_le_i16(&rdr, &unpacked_i16) == cursor_res_ok);
+    assert(cursor_unpack_be_u32(&rdr, &unpacked_u32) == cursor_res_ok);
+    assert(cursor_unpack_le_i32(&rdr, &unpacked_i32) == cursor_res_ok);
+    assert(cursor_unpack_be_u64(&rdr, &unpacked_u64) == cursor_res_ok);
+    assert(cursor_unpack_le_i64(&rdr, &unpacked_i64) == cursor_res_ok);
+    assert(cursor_unpack_be_f(&rdr, &unpacked_f) == cursor_res_ok);
+    assert(cursor_unpack_le_d(&rdr, &unpacked_d) == cursor_res_ok);
 
     /* Check the packed and unpacked variables for equality */
     assert(packed_u8 == unpacked_u8);

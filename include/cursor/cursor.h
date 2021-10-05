@@ -86,19 +86,6 @@ cursor_unpack_le_f(struct cursor_rdr * csr, float * dst);
 enum cursor_res
 cursor_unpack_le_d(struct cursor_rdr * csr, double * dst);
 
-#define cursor_unpack_le(_CSR, _DST)                                           \
-    _Generic((_DST),                                                           \
-             uint8_t*:  cursor_unpack_le_u8,                                     \
-             uint16_t*: cursor_unpack_le_u16,                                    \
-             uint32_t*: cursor_unpack_le_u32,                                    \
-             uint64_t*: cursor_unpack_le_u64,                                    \
-             int8_t*:   cursor_unpack_le_i8,                                     \
-             int16_t*:  cursor_unpack_le_i16,                                    \
-             int32_t*:  cursor_unpack_le_i32,                                    \
-             int64_t*:  cursor_unpack_le_i64,                                    \
-             float*:    cursor_unpack_le_f,                                      \
-             double*:   cursor_unpack_le_d                                       \
-             )(_CSR, _DST)
 
 enum cursor_res
 cursor_unpack_be_u8(struct cursor_rdr * csr, uint8_t * dst);
@@ -130,19 +117,6 @@ cursor_unpack_be_f(struct cursor_rdr * csr, float * dst);
 enum cursor_res
 cursor_unpack_be_d(struct cursor_rdr * csr, double * dst);
 
-#define cursor_unpack_be(_CSR, _DST)                                           \
-    _Generic((_DST),                                                           \
-             uint8_t*:  cursor_unpack_be_u8,                                   \
-             uint16_t*: cursor_unpack_be_u16,                                  \
-             uint32_t*: cursor_unpack_be_u32,                                  \
-             uint64_t*: cursor_unpack_be_u64,                                  \
-             int8_t*:   cursor_unpack_be_i8,                                   \
-             int16_t*:  cursor_unpack_be_i16,                                  \
-             int32_t*:  cursor_unpack_be_i32,                                  \
-             int64_t*:  cursor_unpack_be_i64,                                  \
-             float*:    cursor_unpack_be_f,                                    \
-             double*:   cursor_unpack_be_d                                     \
-             )(_CSR, _DST)
 
 enum cursor_res
 cursor_pack_le_u8(struct cursor_wtr * csr, uint8_t val);
@@ -174,18 +148,6 @@ cursor_pack_le_f(struct cursor_wtr * csr, float val);
 enum cursor_res
 cursor_pack_le_d(struct cursor_wtr * csr, double val);
 
-#define cursor_pack_le(_CSR, _DST)                                             \
-    _Generic((_DST), uint8_t                                                   \
-             : cursor_pack_le_u8, uint16_t                                     \
-             : cursor_pack_le_u16, uint32_t                                    \
-             : cursor_pack_le_u32, uint64_t                                    \
-             : cursor_pack_le_u64, int8_t                                      \
-             : cursor_pack_le_i8, int16_t                                      \
-             : cursor_pack_le_i16, int32_t                                     \
-             : cursor_pack_le_i32, int64_t                                     \
-             : cursor_pack_le_i64, float                                       \
-             : cursor_pack_le_f, double                                        \
-             : cursor_pack_le_d)(_CSR, _DST)
 
 enum cursor_res
 cursor_pack_be_u8(struct cursor_wtr * csr, uint8_t val);
@@ -216,19 +178,6 @@ cursor_pack_be_f(struct cursor_wtr * csr, float val);
 
 enum cursor_res
 cursor_pack_be_d(struct cursor_wtr * csr, double val);
-
-#define cursor_pack_be(_CSR, _DST)                                             \
-    _Generic((_DST), uint8_t                                                   \
-             : cursor_pack_be_u8, uint16_t                                     \
-             : cursor_pack_be_u16, uint32_t                                    \
-             : cursor_pack_be_u32, uint64_t                                    \
-             : cursor_pack_be_u64, int8_t                                      \
-             : cursor_pack_be_i8, int16_t                                      \
-             : cursor_pack_be_i16, int32_t                                     \
-             : cursor_pack_be_i32, int64_t                                     \
-             : cursor_pack_be_i64, float                                       \
-             : cursor_pack_be_f, double                                        \
-             : cursor_pack_be_d)(_CSR, _DST)
 
 #ifdef __cplusplus
 }
