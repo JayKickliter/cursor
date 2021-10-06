@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/JayKickliter/cursor.svg?branch=master)](https://travis-ci.org/JayKickliter/cursor)
+[![Build Status](https://github.com/JayKickliter/cursor/actions/workflows/cmake.yml/badge.svg)](https://github.com/JayKickliter/cursor/actions/workflows/cmake.yml)
 [![Coverage Status](https://coveralls.io/repos/github/JayKickliter/cursor/badge.svg?branch=master)](https://coveralls.io/github/JayKickliter/cursor?branch=master)
 
 # `cursor`
