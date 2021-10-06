@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/JayKickliter/cursor.svg?branch=master)](https://travis-ci.org/JayKickliter/cursor)
+[![Build Status](https://github.com/JayKickliter/cursor/actions/workflows/cmake.yml/badge.svg)](https://github.com/JayKickliter/cursor/actions/workflows/cmake.yml)
 [![Coverage Status](https://coveralls.io/repos/github/JayKickliter/cursor/badge.svg?branch=master)](https://coveralls.io/github/JayKickliter/cursor?branch=master)
 
 # `cursor`
@@ -18,10 +18,10 @@ A simple iterator for packing/unpacking primitive c types to/from a provided buf
     uint32_t written_u32 = 0x456789AB;
 
     /* Write written_u16 to buf little-endian */
-    cursor_pack_le(&wtr, written_u16);
+    cursor_pack_le_u16(&wtr, written_u16);
 
     /* Write written_u32 to buf big-endian */
-    cursor_pack_be(&wtr, written_u32);
+    cursor_pack_be_u32(&wtr, written_u32);
 
     /* Construct a reader cursor */
     struct cursor_rdr rdr = cursor_rdr_new(buf, sizeof(buf));
@@ -30,22 +30,13 @@ A simple iterator for packing/unpacking primitive c types to/from a provided buf
     uint32_t read_u32 = 0;
 
     /* Read a packed little-endian uint16_t out of buf */
-    cursor_unpack_le(&rdr, &read_u16);
+    cursor_unpack_le_u16(&rdr, &read_u16);
 
     /* Read a packed big-endian uint32_t out of buf */
-    cursor_unpack_be(&rdr, &read_u32);
+    cursor_unpack_be_u32(&rdr, &read_u32);
 
     assert(read_u16 == written_u16);
     assert(read_u32 == written_u32);
 ```
 
 See the full [example](examples/simple.c).
-
-## Prerequisites
-
-`cursor` makes use of c11's generic selection expression feature. These are the minimum `gcc` and `clang` versions that support it:
-
-* clang >= 3.8
-* gcc  >= 4.9
-
-Feel free to open an issue if you'd like to use `cursor` but you're compiler is not compatible. The generic pack/unpack function calls are just sugar, and a configuration step could `ifdef` them out when not supported.
