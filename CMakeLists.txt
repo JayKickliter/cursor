@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 project(Cursor
-  VERSION 1.0
+  VERSION 0.9
   LANGUAGES C
   )
 
@@ -18,7 +18,7 @@ int main(int argc, char * argv[]) {
   HAVE_ATTRIBUTE_MAY_ALIAS
   )
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src)
